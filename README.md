@@ -5,7 +5,7 @@ ROOT.war replaces Tomcat's default ROOT application - $TOMCAT_HOME/webapps/ROOT
 ### Test with Jetty web server
 
 ```shell
-git clone git@github.com:AndriyKalashnykov/example-war.git
+git clone git@github.com:AndriyKalashnykov/tomcat-root-war.git
 cd example-war
 mvn jetty:run
 
@@ -17,7 +17,7 @@ Access http://localhost:8080
 ### Create a WAR file
 
 ```shell
-git clone git@github.com:AndriyKalashnykov/example-war.git
+git clone git@github.com:AndriyKalashnykov/tomcat-root-war.git
 cd example-war
 mvn clean install
 ```
