@@ -11,8 +11,9 @@ language: java
 
 # A list of available JDKs in Trusty can be seed in:
 # https://docs.travis-ci.com/user/reference/xenial/#jvm-clojure-groovy-java-scala-support
-jdk: openjdk8
-#  - openjdk11
+jdk: 
+ - openjdk8
+ - openjdk11
 
 env:
     - MAVEN_OPTS="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
