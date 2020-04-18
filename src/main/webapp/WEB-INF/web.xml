@@ -6,6 +6,7 @@
          version="4.0"
          metadata-complete="true">
     <display-name>Welcome to Tomcat</display-name>
+    <default-context-path>/</default-context-path>
     <servlet>
         <servlet-name>InfoServlet</servlet-name>
         <servlet-class>com.ak.servlet.InfoServlet</servlet-class>
@@ -15,6 +16,6 @@
         <url-pattern>/InfoServlet</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
-        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>index.html</welcome-file>
     </welcome-file-list>
 </web-app>
