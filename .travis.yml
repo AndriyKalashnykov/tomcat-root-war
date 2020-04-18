@@ -15,7 +15,7 @@ jdk: openjdk8
 #  - openjdk11
 
 env:
-    - MAVEN_OPTS="-XX:+UseCGroupMemoryLimitForHeap"
+    - MAVEN_OPTS="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
 
 # see https://blog.travis-ci.com/2014-12-17-faster-builds-with-container-based-infrastructure
 sudo: false
