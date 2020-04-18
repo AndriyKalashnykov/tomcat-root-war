@@ -8,7 +8,7 @@ ROOT.war replaces Tomcat's default ROOT application - $TOMCAT_HOME/webapps/ROOT
 
 ```shell
 git clone git@github.com:AndriyKalashnykov/tomcat-root-war.git
-cd example-war
+cd tomcat-root-war
 mvn jetty:run
 
 open http://localhost:8080
@@ -16,11 +16,11 @@ open http://localhost:8080
 
 Access http://localhost:8080
 
-### Create a WAR file
+### Create WAR file
 
 ```shell
 git clone git@github.com:AndriyKalashnykov/tomcat-root-war.git
-cd example-war
+cd tomcat-root-war
 mvn clean install
 ```
 
@@ -29,7 +29,7 @@ mvn clean install
 ```shell
 jar tf ./target/ROOT.war
 ```
-### Replace ROOT application
+### Replace TOMCAT ROOT application
 
 ```shell
 rm -rf $TOMCAT_HOME/webapps/ROOT
