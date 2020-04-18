@@ -24,6 +24,10 @@ hs_err_pid*
 
 .DS_Store
 
+.classpath
+.project
+.settings/
+
 target/
 *.class
 *.jar
