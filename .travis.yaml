@@ -4,14 +4,14 @@
 
 # We will use Ubuntu 18.04 (bionic beaver). List of options:
 # https://docs.travis-ci.com/user/reference/overview/#linux
-# dist: xenial
+
+dist: bionic
 
 language: java
 
 # A list of available JDKs in Trusty can be seed in:
 # https://docs.travis-ci.com/user/reference/xenial/#jvm-clojure-groovy-java-scala-support
-jdk:
- - openjdk8
+jdk: openjdk8
 #  - openjdk11
 
 env:
@@ -30,8 +30,8 @@ cache:
 
 install: true
 
-script:
-- ./mvnw clean install
+# script:
+# - ./mvnw clean install
 
 notifications:
   email:
