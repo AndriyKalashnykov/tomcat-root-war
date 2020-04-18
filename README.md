@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/AndriyKalashnykov/tomcat-root-war.svg?branch=master)](https://travis-ci.org/AndriyKalashnykov/tomcat-root-war)
+
 # Java Web Application example
 
 ROOT.war replaces Tomcat's default ROOT application - $TOMCAT_HOME/webapps/ROOT
