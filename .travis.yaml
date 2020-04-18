@@ -27,7 +27,7 @@ cache:
 
 install: true
 
-script: ./mvnw clean install
+script: mvn clean install
 
 notifications:
   email:
