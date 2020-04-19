@@ -31,6 +31,15 @@ jar tf ./target/ROOT.war
 ```
 ### Replace TOMCAT ROOT application
 
+Edit `$TOMCAT_HOME/conf/server.xml`
+
+```xml
+<Host name="localhost"  appBase="webapps" unpackWARs="true" autoDeploy="false" deployOnStartUp="false">
+```
+
+`autoDeploy` and `deployOnStartUp` needs to be set to `false`
+
+Remove default ROOT folder and copy ROOT.war
 ```shell
 rm -rf $TOMCAT_HOME/webapps/ROOT
 rm -f $TOMCAT_HOME/webapps/ROOT.war
