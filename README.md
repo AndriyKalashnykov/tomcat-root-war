@@ -47,5 +47,4 @@ cp ./target/ROOT.war $TOMCAT_HOME/webapps/ROOT.war
 ```
 
 ## Links
-
-[How to change Tomcat ROOT application?](https://stackoverflow.com/questions/715506/how-to-change-the-root-application)
+[Docker image of this application deployed onto Customized Bitnami Tomcat 9](https://hub.docker.com/r/andriykalashnykov/bitnami-tomcat9-jdk18-root-war)
