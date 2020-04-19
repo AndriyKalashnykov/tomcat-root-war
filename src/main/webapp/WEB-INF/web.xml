@@ -5,7 +5,7 @@
                       http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0"
          metadata-complete="true">
-    <display-name>Welcome to Tomcat</display-name>
+    <display-name>Example Web Application</display-name>
     <default-context-path>/</default-context-path>
     <servlet>
         <servlet-name>InfoServlet</servlet-name>
