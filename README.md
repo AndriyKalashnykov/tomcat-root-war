@@ -52,7 +52,7 @@ Default welcome page - index.jsp
 ![Default welcome page - index.jsp](images/https-8443-root.png)
 
 index.html
-![index.html](images/https-8443-index-html.png)""
+![index.html](images/https-8443-index-html.png)
 
 ## Links
 [Docker image of this application deployed onto Customized Bitnami Tomcat 9](https://hub.docker.com/r/andriykalashnykov/bitnami-tomcat9-jdk18-root-war)
