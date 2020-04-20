@@ -7,7 +7,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-    <title>Sample Web Application - SnoopServlet</title>
+    <title>Java Web Application</title>
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
