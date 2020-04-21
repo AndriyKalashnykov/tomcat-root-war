@@ -51,7 +51,7 @@ cp ./target/ROOT.war $TOMCAT_HOME/webapps/ROOT.war
 
 ### Java Web Application UI
 
-Default welcome page - index.jsp
+Default welcome page - InfoServlet
 ![Default welcome page - index.jsp](images/https-8443-root.png)
 
 index.html
