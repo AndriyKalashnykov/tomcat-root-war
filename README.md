@@ -9,7 +9,7 @@ ROOT.war replaces Tomcat's default ROOT application - $TOMCAT_HOME/webapps/ROOT
 ```shell
 git clone git@github.com:AndriyKalashnykov/tomcat-root-war.git
 cd tomcat-root-war
-mvn jetty:run
+mvn clean package jetty:run
 
 open http://localhost:8080
 ```
@@ -51,9 +51,15 @@ cp ./target/ROOT.war $TOMCAT_HOME/webapps/ROOT.war
 
 ### Java Web Application UI
 
-Default welcome page - InfoServlet
-![Default welcome page - index.jsp](images/https-8443-root.png)
+Default welcome page -  [index.jsp](http://localhost:8080/)
+![index.html](images/http-8080-root.png)
 
-index.html
-![index.html](images/https-8443-index-html.png)
+JSP - [infoservlet](http://localhost:8080/index.jsp)
+![infoservlet](images/http-8080-index-jsp.png)
+
+Servlet - [infoservlet](http://localhost:8080/infoservlet)
+![infoservlet](images/http-8080-infoservlet.png)
+
+HTML - [infoservlet](http://localhost:8080/index.html)
+![infoservlet](images/http-8080-index-html.png)
 

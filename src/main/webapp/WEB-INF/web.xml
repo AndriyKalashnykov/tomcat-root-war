@@ -8,14 +8,14 @@
     <display-name>Example Web Application</display-name>
     <default-context-path>/</default-context-path>
     <servlet>
-        <servlet-name>InfoServlet</servlet-name>
+        <servlet-name>infoiervlet</servlet-name>
         <servlet-class>com.ak.servlet.InfoServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>InfoServlet</servlet-name>
-        <url-pattern>/InfoServlet</url-pattern>
+        <servlet-name>infoiervlet</servlet-name>
+        <url-pattern>/infoservlet</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
-        <welcome-file>InfoServlet</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 </web-app>
