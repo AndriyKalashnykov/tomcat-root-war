@@ -54,12 +54,12 @@ cp ./target/ROOT.war $TOMCAT_HOME/webapps/ROOT.war
 Default welcome page -  [index.jsp](http://localhost:8080/)
 ![index.html](images/http-8080-root.png)
 
-JSP - [infoservlet](http://localhost:8080/index.jsp)
+JSP - [index.jsp](http://localhost:8080/index.jsp)
 ![infoservlet](images/http-8080-index-jsp.png)
 
 Servlet - [infoservlet](http://localhost:8080/infoservlet)
 ![infoservlet](images/http-8080-infoservlet.png)
 
-HTML - [infoservlet](http://localhost:8080/index.html)
+HTML - [index.html](http://localhost:8080/index.html)
 ![infoservlet](images/http-8080-index-html.png)
 
