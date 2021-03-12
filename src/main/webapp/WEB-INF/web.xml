@@ -8,11 +8,11 @@
     <display-name>Example Web Application</display-name>
     <default-context-path>/</default-context-path>
     <servlet>
-        <servlet-name>infoiervlet</servlet-name>
+        <servlet-name>infoservlet</servlet-name>
         <servlet-class>com.ak.servlet.InfoServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>infoiervlet</servlet-name>
+        <servlet-name>infoservlet</servlet-name>
         <url-pattern>/infoservlet</url-pattern>
     </servlet-mapping>
     <welcome-file-list>

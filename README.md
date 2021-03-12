@@ -11,10 +11,10 @@ git clone git@github.com:AndriyKalashnykov/tomcat-root-war.git
 cd tomcat-root-war
 mvn clean package jetty:run
 
-open http://localhost:8080
+open http://localhost:8080/index.html
 ```
 
-Access http://localhost:8080
+Access http://localhost:8080/index.html
 
 ### Create WAR file
 
