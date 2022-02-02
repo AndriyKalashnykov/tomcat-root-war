@@ -4,7 +4,19 @@
 
 ROOT.war replaces Tomcat's default ROOT application - $TOMCAT_HOME/webapps/ROOT
 
-### Test with Jetty web server
+## Pre-requisites
+
+* [sdkman](https://sdkman.io/install)
+  Install and use JDK 17
+
+  ```bash
+  sdk install java 17.0.1.12.1-amzn
+  sdk use java 17.0.1.12.1-amzn
+  ```
+* [Apache Maven](https://maven.apache.org/install.html)
+* [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+
+## Test with Jetty web server
 
 ```shell
 git clone git@github.com:AndriyKalashnykov/tomcat-root-war.git
@@ -16,7 +28,7 @@ open http://localhost:8080/index.html
 
 Access http://localhost:8080/index.html
 
-### Create WAR file
+## Create WAR file
 
 ```shell
 git clone git@github.com:AndriyKalashnykov/tomcat-root-war.git
@@ -24,12 +36,12 @@ cd tomcat-root-war
 mvn clean install
 ```
 
-### List content of generated WAR file
+## List content of generated WAR file
 
 ```shell
 jar tf ./target/ROOT.war
 ```
-### Replace TOMCAT ROOT application
+## Replace TOMCAT ROOT application
 
 Edit `$TOMCAT_HOME/conf/server.xml`: `autoDeploy` and `deployOnStartUp` needs to be set to `false`
 
@@ -44,8 +56,9 @@ rm -f $TOMCAT_HOME/webapps/ROOT.war
 cp ./target/ROOT.war $TOMCAT_HOME/webapps/ROOT.war
 ```
 
-## Links
-[Docker image of this application deployed onto Customized Bitnami Tomcat 9](https://hub.docker.com/r/andriykalashnykov/bitnami-tomcat9-jdk18-root-war)
+## This project used in
+* [Java Web Application (WAR) deployed as root "/" context onto Customized Bitnami Tomcat 9](https://github.com/AndriyKalashnykov/bitnami-tomcat9-jdk18-root-war)
+* [Docker image of this application deployed onto Customized Bitnami Tomcat 9](https://hub.docker.com/r/andriykalashnykov/bitnami-tomcat9-jdk18-root-war)
 
 ### Java Web Application UI
 
