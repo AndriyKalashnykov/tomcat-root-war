@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/AndriyKalashnykov/tomcat-root-war.svg?branch=master)](https://travis-ci.org/AndriyKalashnykov/tomcat-root-war)
-
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FAndriyKalashnykov%2Ftomcat-root-war&count_bg=%2333CD56&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 # Java Web Application example
 
 ROOT.war replaces Tomcat's default ROOT application - $TOMCAT_HOME/webapps/ROOT
@@ -31,13 +31,11 @@ jar tf ./target/ROOT.war
 ```
 ### Replace TOMCAT ROOT application
 
-Edit `$TOMCAT_HOME/conf/server.xml`
+Edit `$TOMCAT_HOME/conf/server.xml`: `autoDeploy` and `deployOnStartUp` needs to be set to `false`
 
 ```xml
 <Host name="localhost"  appBase="webapps" unpackWARs="true" autoDeploy="false" deployOnStartUp="false">
 ```
-
-`autoDeploy` and `deployOnStartUp` needs to be set to `false`
 
 Remove default ROOT folder and copy ROOT.war
 ```shell
@@ -51,15 +49,15 @@ cp ./target/ROOT.war $TOMCAT_HOME/webapps/ROOT.war
 
 ### Java Web Application UI
 
-Default welcome page -  [index.jsp](http://localhost:8080/)
+Default welcome page -  [http://localhost:8080/](http://localhost:8080/)
 ![index.html](images/http-8080-root.png)
 
-JSP - [index.jsp](http://localhost:8080/index.jsp)
+JSP - [http://localhost:8080/index.jsp](http://localhost:8080/index.jsp)
 ![infoservlet](images/http-8080-index-jsp.png)
 
-Servlet - [infoservlet](http://localhost:8080/infoservlet)
+Servlet - [http://localhost:8080/infoservlet](http://localhost:8080/infoservlet)
 ![infoservlet](images/http-8080-infoservlet.png)
 
-HTML - [index.html](http://localhost:8080/index.html)
+HTML - [http://localhost:8080/index.html](http://localhost:8080/index.html)
 ![infoservlet](images/http-8080-index-html.png)
 
