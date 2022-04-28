@@ -16,6 +16,13 @@ ROOT.war replaces Tomcat's default ROOT application - $TOMCAT_HOME/webapps/ROOT
   sdk use java 17.0.1.12.1-amzn
   ```
 * [Apache Maven](https://maven.apache.org/install.html)
+
+  Install Apache Maven 3.8.5
+
+    ```bash
+    sdk install maven 3.8.5
+    sdk use maven 3.8.5
+    ```
 * [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
 ## Test with Jetty web server
