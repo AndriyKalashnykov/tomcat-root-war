@@ -61,7 +61,7 @@ Edit `$TOMCAT_HOME/conf/server.xml`: `autoDeploy` and `deployOnStartUp` needs to
 
 Remove default ROOT folder and copy ROOT.war
 ```shell
-rm -rf $TOMCAT_HOME/webapps/ROOT
+rm -rf $TOMCAT_HOME/webapps/ROOT/
 rm -f $TOMCAT_HOME/webapps/ROOT.war
 cp ./target/ROOT.war $TOMCAT_HOME/webapps/ROOT.war
 ```
