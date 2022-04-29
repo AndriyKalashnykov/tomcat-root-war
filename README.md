@@ -13,8 +13,8 @@ ROOT.war replaces Tomcat's default ROOT application - $TOMCAT_HOME/webapps/ROOT
     Install and use JDK 18
 
     ```bash
-    sdk install java 18-tem
-    sdk use java 18-tem
+    sdk install java 18.0.1-tem
+    sdk use java 18.0.1-tem
     ```
 * [Apache Maven](https://maven.apache.org/install.html)
 
