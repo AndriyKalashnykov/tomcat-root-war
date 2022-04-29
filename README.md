@@ -66,15 +66,6 @@ rm -f $TOMCAT_HOME/webapps/ROOT.war
 cp ./target/ROOT.war $TOMCAT_HOME/webapps/ROOT.war
 ```
 
-
-## Test WAR file locally
-
-Run WAR file with Jetty plugin
-
-```bash
-mvn jetty:run
-```
-
 ### Java Web Application UI
 
 Default welcome page -  [http://localhost:8080/](http://localhost:8080/)
