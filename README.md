@@ -36,7 +36,7 @@ mvn clean package jetty:run
 xdg-open http://localhost:8080/index.html
 ```
 
-Access http://localhost:8080/index.html
+Access http://localhost:8080/index.html or see [Tomcat ROOT WAR Web Application UI](https://github.com/AndriyKalashnykov/tomcat-root-war/blob/master/README.md#java-web-application-ui)
 
 ## Create WAR file
 
@@ -66,7 +66,7 @@ rm -f $TOMCAT_HOME/webapps/ROOT.war
 cp ./target/ROOT.war $TOMCAT_HOME/webapps/ROOT.war
 ```
 
-### Java Web Application UI
+### Tomcat ROOT WAR Web Application UI
 
 Default welcome page -  [http://localhost:8080/](http://localhost:8080/)
 ![index.html](images/http-8080-root.png)
