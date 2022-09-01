@@ -35,11 +35,11 @@
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-                <version>11.0.11</version>
+                <version>9.4.48.v20220622</version>
             </plugin>
 
             <plugin>
-                <groupId>org.eclipse.jetty</groupId>
+               <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.2</version>
                 <configuration>
