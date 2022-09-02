@@ -23,9 +23,10 @@ jobs:
         java-distro: [ 'temurin' ]
 
     steps:
+
     - uses: actions/checkout@v3.0.2
 
-    - name: Set up JDK ${{ matrix.java }}
+    - name: Set up JDK ${{ matrix.java }} distribution (${{ matrix.java-distro }})
       uses: actions/setup-java@v3.4.1
       with:
         java-version: ${{ matrix.Java }}
