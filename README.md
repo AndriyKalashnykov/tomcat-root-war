@@ -18,7 +18,7 @@ ROOT.war replaces Tomcat's default ROOT application - $TOMCAT_HOME/webapps/ROOT
     ```
 * [Apache Maven](https://maven.apache.org/install.html)
 
-  Install Apache Maven 3.8.5
+  Install Apache Maven 3.8.6
 
     ```bash
     sdk install maven 3.8.6
