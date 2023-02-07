@@ -18,11 +18,11 @@ ROOT.war replaces Tomcat's default ROOT application - $TOMCAT_HOME/webapps/ROOT
     ```
 * [Apache Maven](https://maven.apache.org/install.html)
 
-  Install Apache Maven 3.8.6
+  Install Apache Maven 3.9.0
 
     ```bash
-    sdk install maven 3.8.6
-    sdk use maven 3.8.6
+    sdk install maven 3.9.0
+    sdk use maven 3.9.0
     ```
 * [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
