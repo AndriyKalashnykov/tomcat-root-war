@@ -24,7 +24,7 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v3.3.0
+    - uses: actions/checkout@v3.4.0
 
     - name: Set up JDK ${{ matrix.java }} distribution (${{ matrix.java-distro }})
       uses: actions/setup-java@v3.10.0
