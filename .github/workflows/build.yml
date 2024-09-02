@@ -19,8 +19,8 @@ jobs:
     strategy:
 
       matrix:
-        java: [ 11, 18 ]
-        java-distro: [ temurin ]
+        java: [ '11', '18' ]
+        java-distro: [ 'temurin' ]
 
     steps:
 
