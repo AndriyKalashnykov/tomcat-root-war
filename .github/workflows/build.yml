@@ -31,7 +31,7 @@ jobs:
       with:
         java-version: ${{ matrix.Java }}
         distribution: ${{ matrix.java-distro }}
-        cache: true
+        cache: 'maven'
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
