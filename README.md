@@ -45,7 +45,7 @@ cd tomcat-root-war
 mvn clean install
 ```
 
-### Secure environemntn enforcing SSL
+### Building WAR in a Secure environmets that enforce SSL
 
 ```shell
 mvn clean install -Daether.connector.https.securityMode=insecure -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
