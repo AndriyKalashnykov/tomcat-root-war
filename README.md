@@ -1,7 +1,6 @@
 [![Build Maven](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/build.yml/badge.svg)](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/build.yml)
 [![Hits](https://hits.sh/github.com/AndriyKalashnykov/tomcat-root-war.svg?view=today-total&style=plastic)](https://hits.sh/github.com/AndriyKalashnykov/tomcat-root-war/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
-[![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://app.renovatebot.com/dashboard#github/AndriyKalashnykov/go-face-recognition)
 # Java Web Application example
 
 ROOT.war replaces Tomcat's default ROOT application - $TOMCAT_HOME/webapps/ROOT
