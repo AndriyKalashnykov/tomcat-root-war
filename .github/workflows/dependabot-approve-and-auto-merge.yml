@@ -21,44 +21,44 @@ jobs:
           # Tomcat 9 (javax.servlet, Servlet 4.0) - Java 11+
           - java: '11'
             java-distro: 'temurin'
-            maven-profile: 'tomcat9'
+            maven_profile: 'tomcat9'
           - java: '18'
             java-distro: 'temurin'
-            maven-profile: 'tomcat9'
+            maven_profile: 'tomcat9'
           - java: '25'
             java-distro: 'temurin'
-            maven-profile: 'tomcat9'
+            maven_profile: 'tomcat9'
           # Tomcat 10 (jakarta.servlet, Servlet 6.0) - Java 11+
           - java: '11'
             java-distro: 'temurin'
-            maven-profile: 'tomcat10'
+            maven_profile: 'tomcat10'
           - java: '18'
             java-distro: 'temurin'
-            maven-profile: 'tomcat10'
+            maven_profile: 'tomcat10'
           - java: '25'
             java-distro: 'temurin'
-            maven-profile: 'tomcat10'
+            maven_profile: 'tomcat10'
           # Tomcat 11 (jakarta.servlet, Servlet 6.1) - Java 17+
           - java: '18'
             java-distro: 'temurin'
-            maven-profile: 'tomcat11'
+            maven_profile: 'tomcat11'
           - java: '25'
             java-distro: 'temurin'
-            maven-profile: 'tomcat11'
+            maven_profile: 'tomcat11'
 
     steps:
 
       - uses: actions/checkout@v6
 
-      - name: Set up JDK ${{ matrix.java }} distribution (${{ matrix.java-distro }})
+      - name: "Set up JDK ${{ matrix.java }} (${{ matrix.java-distro }})"
         uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: ${{ matrix.java-distro }}
           cache: 'maven'
 
-      - name: Build with Maven (profile: ${{ matrix.maven-profile }})
-        run: mvn -B package -P${{ matrix.maven-profile }} --file pom.xml
+      - name: "Build with Maven (${{ matrix.maven_profile }})"
+        run: mvn -B package -P${{ matrix.maven_profile }} --file pom.xml
 
   dependabot:
     runs-on: ubuntu-latest
@@ -83,7 +83,6 @@ jobs:
       # Finally, this sets the PR to allow auto-merging for patch and minor
       # updates if all checks pass
       - name: Enable auto-merge for Dependabot PRs
-
         if: ${{ github.event.workflow_run.conclusion == 'success' && !contains(steps.metadata.outputs.dependency-names, 'jetty-maven-plugin') && steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major' }}
         run: gh pr merge --auto --squash "$PR_URL"
         env:
