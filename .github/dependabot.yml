@@ -17,6 +17,8 @@ updates:
     ignore:
       - dependency-name: "org.eclipse.jetty:jetty-maven-plugin"
         update-types: ["version-update:semver-major"]
+      - dependency-name: "org.eclipse.jetty.ee10:jetty-ee10-maven-plugin"
+        update-types: ["version-update:semver-major"]
     
   - package-ecosystem: "github-actions"
     directory: "/"

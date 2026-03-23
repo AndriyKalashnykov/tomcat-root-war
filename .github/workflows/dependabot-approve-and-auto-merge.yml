@@ -17,8 +17,34 @@ jobs:
     strategy:
 
       matrix:
-        java: [ '11', '18', '25' ]
-        java-distro: [ 'temurin' ]
+        include:
+          # Tomcat 9 (javax.servlet, Servlet 4.0) - Java 11+
+          - java: '11'
+            java-distro: 'temurin'
+            maven-profile: 'tomcat9'
+          - java: '18'
+            java-distro: 'temurin'
+            maven-profile: 'tomcat9'
+          - java: '25'
+            java-distro: 'temurin'
+            maven-profile: 'tomcat9'
+          # Tomcat 10 (jakarta.servlet, Servlet 6.0) - Java 11+
+          - java: '11'
+            java-distro: 'temurin'
+            maven-profile: 'tomcat10'
+          - java: '18'
+            java-distro: 'temurin'
+            maven-profile: 'tomcat10'
+          - java: '25'
+            java-distro: 'temurin'
+            maven-profile: 'tomcat10'
+          # Tomcat 11 (jakarta.servlet, Servlet 6.1) - Java 17+
+          - java: '18'
+            java-distro: 'temurin'
+            maven-profile: 'tomcat11'
+          - java: '25'
+            java-distro: 'temurin'
+            maven-profile: 'tomcat11'
 
     steps:
 
@@ -27,12 +53,12 @@ jobs:
       - name: Set up JDK ${{ matrix.java }} distribution (${{ matrix.java-distro }})
         uses: actions/setup-java@v5
         with:
-          java-version: ${{ matrix.Java }}
+          java-version: ${{ matrix.java }}
           distribution: ${{ matrix.java-distro }}
           cache: 'maven'
 
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
+      - name: Build with Maven (profile: ${{ matrix.maven-profile }})
+        run: mvn -B package -P${{ matrix.maven-profile }} --file pom.xml
 
   dependabot:
     runs-on: ubuntu-latest

@@ -1,90 +1,194 @@
 [![Build Maven](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/build.yml/badge.svg)](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/build.yml)
 [![Hits](https://hits.sh/github.com/AndriyKalashnykov/tomcat-root-war.svg?view=today-total&style=plastic)](https://hits.sh/github.com/AndriyKalashnykov/tomcat-root-war/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
-# Java Web Application example
 
-ROOT.war replaces Tomcat's default ROOT application - $TOMCAT_HOME/webapps/ROOT
+# Tomcat ROOT WAR
 
-## Pre-requisites
+A minimal Java web application that replaces Tomcat's default ROOT webapp (`$TOMCAT_HOME/webapps/ROOT`). Displays server info, request headers, and cookies via a servlet and JSP page.
 
-* [sdkman](https://sdkman.io/install)
+Supports **Tomcat 9**, **10**, and **11** via Maven profiles.
 
-    Install and use JDK
+## Prerequisites
 
-    ```bash
-    sdk install java 25.0.1-tem
-    sdk use java 25.0.1-tem
-    ```
-* [Apache Maven](https://maven.apache.org/install.html)
+- [sdkman](https://sdkman.io/install)
+- [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
-  Install Apache Maven 3.9.11
+```bash
+sdk install java 25.0.1-tem && sdk use java 25.0.1-tem
+sdk install maven 3.9.11 && sdk use maven 3.9.11
+```
 
-    ```bash
-    sdk install maven 3.9.11
-    sdk use maven 3.9.11
-    ```
-* [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+## Quick Start
 
-## Test with Jetty web server
-
-```shell
+```bash
 git clone git@github.com:AndriyKalashnykov/tomcat-root-war.git
 cd tomcat-root-war
-mvn clean package jetty:run
-
-xdg-open http://localhost:8080/index.html
+make build
+make jetty-run
+# open http://localhost:8080/
 ```
 
-Access http://localhost:8080/index.html or see [Tomcat ROOT WAR Web Application UI](https://github.com/AndriyKalashnykov/tomcat-root-war/blob/master/README.md#java-web-application-ui)
+## Build Profiles
 
-## Create WAR file
+Each profile targets a specific Tomcat version with the appropriate Servlet API:
 
-```shell
-git clone git@github.com:AndriyKalashnykov/tomcat-root-war.git
-cd tomcat-root-war
-mvn clean install
+| Profile | Tomcat | Servlet API | Java | JDK |
+|---------|--------|-------------|------|-----|
+| `tomcat9` (default) | 9.0.x | `javax.servlet` 4.0 | 11 | 11-tem |
+| `tomcat10` | 10.1.x | `jakarta.servlet` 6.0 | 17 | 17-tem |
+| `tomcat11` | 11.0.x | `jakarta.servlet` 6.1 | 21 | 21-tem |
+
+Select a profile with `PROFILE=`:
+
+```bash
+make build                       # Tomcat 9 (default)
+make build PROFILE=tomcat10      # Tomcat 10
+make build PROFILE=tomcat11      # Tomcat 11
 ```
 
-### Building WAR in a Secure environmets that enforce SSL
+## Make Tasks
 
-```shell
-mvn clean install -Daether.connector.https.securityMode=insecure -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true
+| Command | Description |
+|---------|-------------|
+| `make help` | List all available tasks |
+| `make check-env` | Install/verify JDK and Maven via sdkman |
+| `make clean` | Remove build artifacts |
+| `make build` | Build `ROOT.war` |
+| `make verify-all` | Compile all three profiles to check for errors |
+| `make jetty-run` | Run locally with embedded Jetty server |
+| `make deploy` | Build and deploy `ROOT.war` to Tomcat |
+| `make install-tomcat` | Download and install Tomcat 9, 10, 11 to `~/tomcat/` |
+| `make switch-tomcat` | Switch the active Tomcat version |
+| `make print-deps-updates` | Show available dependency updates |
+| `make update-deps` | Update dependencies to latest releases |
+
+All profile-aware targets default to `tomcat9`. Set `PROFILE=tomcat10` or `PROFILE=tomcat11` to override.
+
+## Install Tomcat
+
+Downloads and installs Tomcat 9, 10, and 11 to `~/tomcat/{9,10,11}` with a `~/tomcat/current` symlink:
+
+```bash
+make install-tomcat
 ```
 
-## List content of generated WAR file
+The install script can also be called directly:
 
-```shell
-jar tf ./target/ROOT.war
+```bash
+./scripts/install-tomcat.sh                    # install all versions
+./scripts/install-tomcat.sh --versions 10,11   # install specific versions
+./scripts/install-tomcat.sh --current 10       # switch current symlink to Tomcat 10
 ```
-## Replace TOMCAT ROOT application
 
-Edit `$TOMCAT_HOME/conf/server.xml`: `autoDeploy` and `deployOnStartUp` needs to be set to `false`
+Add these to your shell profile (`~/.bashrc` or `~/.zshrc`):
+
+```bash
+export TOMCAT_HOME=~/tomcat/current
+export CATALINA_HOME=$TOMCAT_HOME
+```
+
+## Deploy
+
+Build `ROOT.war` and deploy it to the matching Tomcat installation:
+
+```bash
+make deploy                      # Tomcat 9
+make deploy PROFILE=tomcat10     # Tomcat 10
+make deploy PROFILE=tomcat11     # Tomcat 11
+```
+
+<details>
+<summary>Manual deployment</summary>
+
+Edit `$TOMCAT_HOME/conf/server.xml` &mdash; set `autoDeploy` and `deployOnStartUp` to `false`:
 
 ```xml
-<Host name="localhost"  appBase="webapps" unpackWARs="true" autoDeploy="false" deployOnStartUp="false">
+<Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="false" deployOnStartUp="false">
 ```
 
-Remove default ROOT folder and copy ROOT.war
-```shell
+Then copy the WAR:
+
+```bash
 rm -rf $TOMCAT_HOME/webapps/ROOT/
 rm -f $TOMCAT_HOME/webapps/ROOT.war
 cp ./target/ROOT.war $TOMCAT_HOME/webapps/ROOT.war
 ```
+</details>
 
-### Tomcat ROOT WAR Web Application UI
+## Start / Stop Tomcat
 
-Default welcome page -  [http://localhost:8080/](http://localhost:8080/)
+```bash
+~/tomcat/current/bin/startup.sh          # start
+xdg-open http://localhost:8080/          # open in browser
+tail -f ~/tomcat/current/logs/catalina.out   # view logs
+~/tomcat/current/bin/shutdown.sh          # stop
+```
+
+To run a specific version instead of `current`:
+
+```bash
+~/tomcat/10/bin/startup.sh
+~/tomcat/10/bin/shutdown.sh
+```
+
+To switch which version `current` points to:
+
+```bash
+make switch-tomcat PROFILE=tomcat11
+```
+
+## Run Locally with Jetty (no Tomcat install needed)
+
+```bash
+make jetty-run                       # Tomcat 9
+make jetty-run PROFILE=tomcat10      # Tomcat 10
+make jetty-run PROFILE=tomcat11      # Tomcat 11
+```
+
+Then open http://localhost:8080/index.html
+
+## Uninstall Tomcat
+
+```bash
+rm -rf ~/tomcat/9         # remove a specific version
+rm -rf ~/tomcat           # remove everything
+```
+
+Remove the `TOMCAT_HOME` and `CATALINA_HOME` exports from your shell profile.
+
+## Building WAR in Secure Environments
+
+If your environment enforces SSL certificate validation:
+
+```bash
+mvn clean install \
+  -Daether.connector.https.securityMode=insecure \
+  -Dmaven.wagon.http.ssl.insecure=true \
+  -Dmaven.wagon.http.ssl.allowall=true \
+  -Dmaven.wagon.http.ssl.ignore.validity.dates=true
+```
+
+## Inspect WAR Contents
+
+```bash
+jar tf ./target/ROOT.war
+```
+
+## Screenshots
+
+Default welcome page &mdash; [http://localhost:8080/](http://localhost:8080/)
 ![index.html](images/http-8080-root.png)
 
-JSP - [http://localhost:8080/index.jsp](http://localhost:8080/index.jsp)
-![infoservlet](images/http-8080-index-jsp.png)
+JSP &mdash; [http://localhost:8080/index.jsp](http://localhost:8080/index.jsp)
+![index.jsp](images/http-8080-index-jsp.png)
 
-Servlet - [http://localhost:8080/infoservlet](http://localhost:8080/infoservlet)
+Servlet &mdash; [http://localhost:8080/infoservlet](http://localhost:8080/infoservlet)
 ![infoservlet](images/http-8080-infoservlet.png)
 
-HTML - [http://localhost:8080/index.html](http://localhost:8080/index.html)
-![infoservlet](images/http-8080-index-html.png)
+HTML &mdash; [http://localhost:8080/index.html](http://localhost:8080/index.html)
+![index.html](images/http-8080-index-html.png)
 
-## This project used in
-* [Java Web Application (WAR) deployed as root "/" context onto Customized Bitnami Tomcat 9](https://github.com/AndriyKalashnykov/bitnami-tomcat9-jdk18-root-war)
-* [Docker image of this application deployed onto Customized Bitnami Tomcat 9](https://hub.docker.com/r/andriykalashnykov/bitnami-tomcat9-jdk18-root-war)
+## Used In
+
+- [Java Web Application (WAR) deployed as root "/" context onto Customized Bitnami Tomcat 9](https://github.com/AndriyKalashnykov/bitnami-tomcat9-jdk18-root-war)
+- [Docker image of this application deployed onto Customized Bitnami Tomcat 9](https://hub.docker.com/r/andriykalashnykov/bitnami-tomcat9-jdk18-root-war)

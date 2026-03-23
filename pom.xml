@@ -9,40 +9,24 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <!-- Defaults for tomcat9 profile (overridden by other profiles) -->
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <jdk.version>11-tem</jdk.version>
+        <app.sourceDirectory>src/main/java</app.sourceDirectory>
+        <app.webXml>src/main/webapp/WEB-INF/web.xml</app.webXml>
     </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-            <version>1.2</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
 
     <build>
         <finalName>ROOT</finalName>
+        <sourceDirectory>${app.sourceDirectory}</sourceDirectory>
         <plugins>
             <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>9.4.58.v20250814</version>
-            </plugin>
-
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
+                    <webXml>${app.webXml}</webXml>
                     <webResources>
                         <resource>
                             <directory>${project.build.directory}</directory>
@@ -57,4 +41,112 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Tomcat 9: javax.servlet, Servlet 4.0, Java 11+ -->
+        <profile>
+            <id>tomcat9</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <maven.compiler.source>11</maven.compiler.source>
+                <maven.compiler.target>11</maven.compiler.target>
+                <jdk.version>11-tem</jdk.version>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                    <version>4.0.1</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>jstl</artifactId>
+                    <version>1.2</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-maven-plugin</artifactId>
+                        <version>9.4.58.v20250814</version>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Tomcat 10: jakarta.servlet, Servlet 6.0, Java 11+ -->
+        <profile>
+            <id>tomcat10</id>
+            <properties>
+                <maven.compiler.source>17</maven.compiler.source>
+                <maven.compiler.target>17</maven.compiler.target>
+                <jdk.version>17-tem</jdk.version>
+                <app.sourceDirectory>src/main/java-jakarta</app.sourceDirectory>
+                <app.webXml>src/main/webapp/WEB-INF/web-jakarta.xml</app.webXml>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>jakarta.servlet</groupId>
+                    <artifactId>jakarta.servlet-api</artifactId>
+                    <version>6.0.0</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.glassfish.web</groupId>
+                    <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+                    <version>3.0.1</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-maven-plugin</artifactId>
+                        <version>11.0.25</version>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Tomcat 11: jakarta.servlet, Servlet 6.1, Java 17+ -->
+        <profile>
+            <id>tomcat11</id>
+            <properties>
+                <maven.compiler.source>21</maven.compiler.source>
+                <maven.compiler.target>21</maven.compiler.target>
+                <jdk.version>21-tem</jdk.version>
+                <app.sourceDirectory>src/main/java-jakarta</app.sourceDirectory>
+                <app.webXml>src/main/webapp/WEB-INF/web-jakarta.xml</app.webXml>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>jakarta.servlet</groupId>
+                    <artifactId>jakarta.servlet-api</artifactId>
+                    <version>6.1.0</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.glassfish.web</groupId>
+                    <artifactId>jakarta.servlet.jsp.jstl</artifactId>
+                    <version>3.0.1</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.eclipse.jetty.ee10</groupId>
+                        <artifactId>jetty-ee10-maven-plugin</artifactId>
+                        <version>12.0.16</version>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
