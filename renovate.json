@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "automerge": true,
+  "automergeType": "pr",
+  "platformAutomerge": true,
+  "packageRules": [
+    {
+      "matchManagers": ["maven"],
+      "matchPackageNames": [
+        "org.eclipse.jetty:jetty-maven-plugin",
+        "org.eclipse.jetty.ee10:jetty-ee10-maven-plugin"
+      ],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ]
+}
