@@ -4,6 +4,7 @@ SHELL := /bin/bash
 SDKMAN := $(HOME)/.sdkman/bin/sdkman-init.sh
 
 MAVEN_VER := 3.9.11
+CURRENTTAG := $(shell git describe --tags --abbrev=0 2>/dev/null || echo "dev")
 
 PROFILE ?= tomcat9
 ALLOWED_PROFILES := tomcat9 tomcat10 tomcat11
@@ -24,11 +25,11 @@ else
 	OPEN_CMD := xdg-open
 endif
 
-.PHONY: help check-env build-deps-check clean build verify-all \
-	jetty-run deploy install-tomcat switch-tomcat \
-	print-deps-updates update-deps
+.PHONY: help deps deps-check env-check clean build test lint run ci \
+	verify-all jetty-run deploy install-tomcat switch-tomcat \
+	print-deps-updates update-deps release
 
-#help: @ List available tasks on this project
+#help: @ List available tasks
 help:
 	@clear
 	@echo "Usage: make COMMAND [PROFILE=tomcat9|tomcat10|tomcat11]"
@@ -37,7 +38,13 @@ help:
 	@echo
 	@grep -E '[a-zA-Z\.\-]+:.*?@ .*$$' $(MAKEFILE_LIST)| tr -d '#' | awk 'BEGIN {FS = ":.*?@ "}; {printf "\033[32m%-18s\033[0m - %s\n", $$1, $$2}'
 
-build-deps-check:
+#deps: @ Check required tools are installed
+deps:
+	@command -v java >/dev/null 2>&1 || { echo "Error: Java required. Install via SDKMAN: https://sdkman.io"; exit 1; }
+	@command -v mvn >/dev/null 2>&1 || { echo "Error: Maven required. Install via SDKMAN: https://sdkman.io"; exit 1; }
+
+#deps-check: @ Install JDK and Maven via SDKMAN
+deps-check:
 	@if [ ! -f "$(SDKMAN)" ]; then \
 		echo "Installing SDKMAN..."; \
 		curl -s "https://get.sdkman.io?rcupdate=false" | bash; \
@@ -45,8 +52,8 @@ build-deps-check:
 	@. $(SDKMAN) && echo N | sdk install java $(JAVA_VER) && sdk use java $(JAVA_VER)
 	@. $(SDKMAN) && echo N | sdk install maven $(MAVEN_VER) && sdk use maven $(MAVEN_VER)
 
-#check-env: @ Check installed tools
-check-env: build-deps-check
+#env-check: @ Check installed tools
+env-check: deps-check
 	@printf "\xE2\x9C\x94 sdkman\n"
 
 #clean: @ Cleanup
@@ -57,6 +64,21 @@ clean:
 build:
 	@echo "Building with profile: $(PROFILE) (JDK $(JAVA_VER))"
 	@mvn install -P$(PROFILE) --file pom.xml
+
+#test: @ Run tests (use PROFILE=tomcat9|tomcat10|tomcat11)
+test: deps
+	@mvn test -P$(PROFILE) --file pom.xml
+
+#lint: @ Check code style with Maven Checkstyle
+lint: deps
+	@mvn validate -P$(PROFILE) --file pom.xml
+
+#run: @ Run locally with Jetty (alias for jetty-run)
+run: jetty-run
+
+#ci: @ Run full local CI pipeline
+ci: deps clean lint build test
+	@echo "Local CI pipeline passed."
 
 #verify-all: @ Verify build compiles for all Tomcat profiles
 verify-all:
@@ -88,3 +110,16 @@ print-deps-updates:
 update-deps: print-deps-updates
 	@mvn versions:use-latest-releases
 	@mvn versions:commit
+
+#release: @ Create and push a new tag
+release:
+	@bash -c 'read -p "New tag (current: $(CURRENTTAG)): " newtag && \
+		echo "$$newtag" | grep -qE "^v[0-9]+\.[0-9]+\.[0-9]+$$" || { echo "Error: Tag must match vN.N.N"; exit 1; } && \
+		echo -n "Create and push $$newtag? [y/N] " && read ans && [ "$${ans:-N}" = y ] && \
+		echo $$newtag > ./version.txt && \
+		git add -A && \
+		git commit -a -s -m "Cut $$newtag release" && \
+		git tag $$newtag && \
+		git push origin $$newtag && \
+		git push && \
+		echo "Done."'
