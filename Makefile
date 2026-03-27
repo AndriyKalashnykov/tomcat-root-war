@@ -4,6 +4,7 @@ SHELL := /bin/bash
 SDKMAN := $(HOME)/.sdkman/bin/sdkman-init.sh
 
 MAVEN_VER := 3.9.11
+ACT_VERSION := 0.2.86
 CURRENTTAG := $(shell git describe --tags --abbrev=0 2>/dev/null || echo "dev")
 
 PROFILE ?= tomcat9
@@ -24,10 +25,6 @@ ifeq ($(UNAME_S), Darwin)
 else
 	OPEN_CMD := xdg-open
 endif
-
-.PHONY: help deps deps-check env-check clean build test lint run ci \
-	verify-all jetty-run deploy install-tomcat switch-tomcat \
-	print-deps-updates update-deps release
 
 #help: @ List available tasks
 help:
@@ -58,20 +55,20 @@ env-check: deps-check
 
 #clean: @ Cleanup
 clean:
-	@mvn clean
+	@mvn -B clean
 
 #build: @ Build ROOT.war (use PROFILE=tomcat9|tomcat10|tomcat11)
-build:
+build: deps
 	@echo "Building with profile: $(PROFILE) (JDK $(JAVA_VER))"
-	@mvn install -P$(PROFILE) --file pom.xml
+	@mvn -B package -P$(PROFILE)
 
 #test: @ Run tests (use PROFILE=tomcat9|tomcat10|tomcat11)
 test: deps
-	@mvn test -P$(PROFILE) --file pom.xml
+	@mvn -B test -P$(PROFILE)
 
 #lint: @ Check code style with Maven Checkstyle
 lint: deps
-	@mvn validate -P$(PROFILE) --file pom.xml
+	@mvn -B validate -P$(PROFILE)
 
 #run: @ Run locally with Jetty (alias for jetty-run)
 run: jetty-run
@@ -81,35 +78,35 @@ ci: deps clean lint build test
 	@echo "Local CI pipeline passed."
 
 #verify-all: @ Verify build compiles for all Tomcat profiles
-verify-all:
-	@mvn clean compile -Ptomcat9 -q --file pom.xml && echo "tomcat9: OK"
-	@mvn clean compile -Ptomcat10 -q --file pom.xml && echo "tomcat10: OK"
-	@mvn clean compile -Ptomcat11 -q --file pom.xml && echo "tomcat11: OK"
+verify-all: deps
+	@mvn -B clean compile -Ptomcat9 -q && echo "tomcat9: OK"
+	@mvn -B clean compile -Ptomcat10 -q && echo "tomcat10: OK"
+	@mvn -B clean compile -Ptomcat11 -q && echo "tomcat11: OK"
 
 #jetty-run: @ Run locally with Jetty (use PROFILE=tomcat9|tomcat10|tomcat11)
-jetty-run:
-	@mvn clean package jetty:run -P$(PROFILE) --file pom.xml
+jetty-run: deps
+	@mvn -B clean package jetty:run -P$(PROFILE)
 
 #deploy: @ Build and deploy ROOT.war to Tomcat (use PROFILE=tomcat9|tomcat10|tomcat11)
-deploy:
+deploy: deps
 	@./scripts/deploy.sh $(subst tomcat,,$(PROFILE))
 
-#install-tomcat: @ Download and install Tomcat 9, 10, 11 to ~/tomcat/
-install-tomcat:
+#tomcat-install: @ Download and install Tomcat 9, 10, 11 to ~/tomcat/
+tomcat-install:
 	@./scripts/install-tomcat.sh
 
-#switch-tomcat: @ Switch active Tomcat version (use PROFILE=tomcat9|tomcat10|tomcat11)
-switch-tomcat:
+#tomcat-switch: @ Switch active Tomcat version (use PROFILE=tomcat9|tomcat10|tomcat11)
+tomcat-switch:
 	@./scripts/install-tomcat.sh --versions "" --current $(subst tomcat,,$(PROFILE))
 
-#print-deps-updates: @ Print project dependencies updates
-print-deps-updates:
-	@mvn versions:display-dependency-updates
+#deps-print-updates: @ Print project dependencies updates
+deps-print-updates: deps
+	@mvn -B versions:display-dependency-updates
 
-#update-deps: @ Update project dependencies to latest releases
-update-deps: print-deps-updates
-	@mvn versions:use-latest-releases
-	@mvn versions:commit
+#deps-update: @ Update project dependencies to latest releases
+deps-update: deps-print-updates
+	@mvn -B versions:use-latest-releases
+	@mvn -B versions:commit
 
 #release: @ Create and push a new tag
 release:
@@ -123,3 +120,27 @@ release:
 		git push origin $$newtag && \
 		git push && \
 		echo "Done."'
+
+#deps-ci: @ Install Maven for CI environments
+deps-ci:
+	@command -v mvn >/dev/null 2>&1 || { \
+		echo "Installing Maven $(MAVEN_VER)..."; \
+		curl -fsSL "https://archive.apache.org/dist/maven/maven-3/$(MAVEN_VER)/binaries/apache-maven-$(MAVEN_VER)-bin.tar.gz" \
+			| sudo tar xz -C /opt; \
+		sudo ln -sf /opt/apache-maven-$(MAVEN_VER)/bin/mvn /usr/local/bin/mvn; \
+	}
+
+#deps-act: @ Install act for local GitHub Actions testing
+deps-act: deps
+	@command -v act >/dev/null 2>&1 || { echo "Installing act $(ACT_VERSION)..."; \
+		curl -sSfL https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash -s -- -b /usr/local/bin v$(ACT_VERSION); \
+	}
+
+#ci-run: @ Run GitHub Actions workflow locally using act
+ci-run: deps-act
+	@act push --container-architecture linux/amd64 \
+		--artifact-server-path /tmp/act-artifacts
+
+.PHONY: help deps deps-check deps-ci deps-act env-check clean build test lint run ci ci-run \
+	verify-all jetty-run deploy tomcat-install tomcat-switch \
+	deps-print-updates deps-update release

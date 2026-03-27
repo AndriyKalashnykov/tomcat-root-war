@@ -1,4 +1,4 @@
-[![Build Maven](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/build.yml/badge.svg)](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/build.yml)
+[![CI](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/ci.yml/badge.svg)](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/ci.yml)
 [![Hits](https://hits.sh/github.com/AndriyKalashnykov/tomcat-root-war.svg?view=today-total&style=plastic)](https://hits.sh/github.com/AndriyKalashnykov/tomcat-root-war/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
 
@@ -16,7 +16,7 @@ Supports **Tomcat 9**, **10**, and **11** via Maven profiles.
 Installs and configures the correct JDK and Maven versions automatically:
 
 ```bash
-make check-env
+make env-check
 ```
 
 ## Quick Start
@@ -52,16 +52,26 @@ make build PROFILE=tomcat11      # Tomcat 11
 | Command | Description |
 |---------|-------------|
 | `make help` | List all available tasks |
-| `make check-env` | Install/verify JDK and Maven via sdkman |
+| `make deps` | Check required tools are installed |
+| `make deps-check` | Install JDK and Maven via SDKMAN |
+| `make deps-ci` | Install Maven for CI environments |
+| `make deps-act` | Install act for local GitHub Actions testing |
+| `make env-check` | Check installed tools |
 | `make clean` | Remove build artifacts |
 | `make build` | Build `ROOT.war` |
+| `make test` | Run tests |
+| `make lint` | Check code style with Maven Checkstyle |
+| `make run` | Run locally with Jetty (alias for `jetty-run`) |
+| `make ci` | Run full local CI pipeline |
+| `make ci-run` | Run GitHub Actions workflow locally using act |
 | `make verify-all` | Compile all three profiles to check for errors |
 | `make jetty-run` | Run locally with embedded Jetty server |
 | `make deploy` | Build and deploy `ROOT.war` to Tomcat |
-| `make install-tomcat` | Download and install Tomcat 9, 10, 11 to `~/tomcat/` |
-| `make switch-tomcat` | Switch the active Tomcat version |
-| `make print-deps-updates` | Show available dependency updates |
-| `make update-deps` | Update dependencies to latest releases |
+| `make tomcat-install` | Download and install Tomcat 9, 10, 11 to `~/tomcat/` |
+| `make tomcat-switch` | Switch the active Tomcat version |
+| `make deps-print-updates` | Show available dependency updates |
+| `make deps-update` | Update dependencies to latest releases |
+| `make release` | Create and push a new tag |
 
 All profile-aware targets default to `tomcat9`. Set `PROFILE=tomcat10` or `PROFILE=tomcat11` to override.
 
@@ -70,7 +80,7 @@ All profile-aware targets default to `tomcat9`. Set `PROFILE=tomcat10` or `PROFI
 Downloads and installs Tomcat 9, 10, and 11 to `~/tomcat/{9,10,11}` with a `~/tomcat/current` symlink:
 
 ```bash
-make install-tomcat
+make tomcat-install
 ```
 
 The install script can also be called directly:
@@ -135,7 +145,7 @@ To run a specific version instead of `current`:
 To switch which version `current` points to:
 
 ```bash
-make switch-tomcat PROFILE=tomcat11
+make tomcat-switch PROFILE=tomcat11
 ```
 
 ## Run Locally with Jetty (no Tomcat install needed)

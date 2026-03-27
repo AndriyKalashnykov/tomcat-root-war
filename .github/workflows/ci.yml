@@ -1,7 +1,4 @@
-# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
-name: build
+name: CI
 
 on:
 
@@ -60,5 +57,14 @@ jobs:
         distribution: ${{ matrix.java-distro }}
         cache: 'maven'
 
-    - name: "Build with Maven (${{ matrix.maven_profile }})"
-      run: mvn -B package -P${{ matrix.maven_profile }} --file pom.xml
+    - name: Setup Maven
+      run: make deps-ci
+
+    - name: Lint
+      run: make lint PROFILE=${{ matrix.maven_profile }}
+
+    - name: Build
+      run: make build PROFILE=${{ matrix.maven_profile }}
+
+    - name: Test
+      run: make test PROFILE=${{ matrix.maven_profile }}

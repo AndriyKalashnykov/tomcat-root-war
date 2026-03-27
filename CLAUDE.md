@@ -15,6 +15,8 @@ make build PROFILE=tomcat11      # Tomcat 11
 make verify-all                  # compile all profiles
 make jetty-run                   # run locally with Jetty
 make clean                       # clean build artifacts
+make ci                          # run full local CI pipeline
+make ci-run                      # run GitHub Actions locally via act
 ```
 
 Or with Maven directly:
@@ -67,4 +69,4 @@ The `Makefile` wraps Maven and the scripts. All profile-aware targets accept `PR
 
 ## CI
 
-GitHub Actions (`build.yml`) tests all 3 profiles on push/PR to master. Matrix: JDK 11, 18, 25 (Temurin) for tomcat9/tomcat10; JDK 18, 25 for tomcat11 (requires Java 17+).
+GitHub Actions (`ci.yml`) tests all 3 profiles on push/PR to master. Matrix: JDK 11, 18, 25 (Temurin) for tomcat9/tomcat10; JDK 18, 25 for tomcat11 (requires Java 17+). Each matrix entry runs `make lint`, `make build`, and `make test`.
