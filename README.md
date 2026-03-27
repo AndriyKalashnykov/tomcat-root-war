@@ -10,8 +10,11 @@ Supports **Tomcat 9**, **10**, and **11** via Maven profiles.
 
 ## Prerequisites
 
-- [sdkman](https://sdkman.io/install)
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- [`GNU Make`](https://www.gnu.org/software/make/)
+- [sdkman](https://sdkman.io/install)
+- [Java](https://sdkman.io/jdks/) (install via SDKMAN: `sdk install java 21-tem`)
+- [Apache Maven](https://maven.apache.org/install.html) (install via SDKMAN: `sdk install maven 3.9.11`)
 
 Verify required tools are installed:
 
