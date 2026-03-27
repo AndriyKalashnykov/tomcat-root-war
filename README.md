@@ -13,10 +13,10 @@ Supports **Tomcat 9**, **10**, and **11** via Maven profiles.
 - [sdkman](https://sdkman.io/install)
 - [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 
-Installs and configures the correct JDK and Maven versions automatically:
+Verify required tools are installed:
 
 ```bash
-make env-check
+make deps
 ```
 
 ## Quick Start
