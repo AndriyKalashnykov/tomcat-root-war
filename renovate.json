@@ -1,58 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:best-practices",
-    ":semanticCommits",
-    ":separateMajorMinor",
-    "schedule:weekly"
+    "config:best-practices"
   ],
   "labels": ["dependencies"],
   "automerge": true,
   "automergeType": "pr",
-  "platformAutomerge": true,
-  "packageRules": [
-    {
-      "description": "Automerge patch and minor updates",
-      "matchUpdateTypes": ["patch", "minor"],
-      "automerge": true
-    },
-    {
-      "description": "Require manual review for major updates",
-      "matchUpdateTypes": ["major"],
-      "automerge": false
-    },
-    {
-      "description": "Group Maven plugin updates",
-      "matchManagers": ["maven"],
-      "matchDepTypes": ["plugin"],
-      "groupName": "maven plugins"
-    },
-    {
-      "description": "Group GitHub Actions updates",
-      "matchManagers": ["github-actions"],
-      "groupName": "github actions"
-    },
-    {
-      "description": "Disable Jetty major updates (managed via profiles)",
-      "matchManagers": ["maven"],
-      "matchPackageNames": [
-        "org.eclipse.jetty:jetty-maven-plugin",
-        "org.eclipse.jetty.ee10:jetty-ee10-maven-plugin"
-      ],
-      "matchUpdateTypes": ["major"],
-      "enabled": false
-    },
-    {
-      "description": "Group javax.servlet dependencies",
-      "matchManagers": ["maven"],
-      "matchPackageNames": ["/^javax\\.servlet/"],
-      "groupName": "javax.servlet"
-    },
-    {
-      "description": "Group jakarta.servlet dependencies",
-      "matchManagers": ["maven"],
-      "matchPackageNames": ["/^jakarta\\.servlet/", "/^org\\.glassfish\\.web:jakarta\\.servlet/"],
-      "groupName": "jakarta.servlet"
-    }
-  ]
+  "platformAutomerge": true
 }
