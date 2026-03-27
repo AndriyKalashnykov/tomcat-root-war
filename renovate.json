@@ -25,7 +25,7 @@
     {
       "description": "Group Maven plugin updates",
       "matchManagers": ["maven"],
-      "matchDepTypes": ["build"],
+      "matchDepTypes": ["plugin"],
       "groupName": "maven plugins"
     },
     {
@@ -46,13 +46,13 @@
     {
       "description": "Group javax.servlet dependencies",
       "matchManagers": ["maven"],
-      "matchPackagePatterns": ["^javax\\.servlet"],
+      "matchPackageNames": ["/^javax\\.servlet/"],
       "groupName": "javax.servlet"
     },
     {
       "description": "Group jakarta.servlet dependencies",
       "matchManagers": ["maven"],
-      "matchPackagePatterns": ["^jakarta\\.servlet", "^org\\.glassfish\\.web:jakarta\\.servlet"],
+      "matchPackageNames": ["/^jakarta\\.servlet/", "/^org\\.glassfish\\.web:jakarta\\.servlet/"],
       "groupName": "jakarta.servlet"
     }
   ]
