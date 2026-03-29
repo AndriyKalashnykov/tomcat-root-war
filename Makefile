@@ -5,6 +5,7 @@ SDKMAN := $(HOME)/.sdkman/bin/sdkman-init.sh
 
 MAVEN_VER := 3.9.11
 ACT_VERSION := 0.2.86
+NVM_VERSION := 0.40.4
 CURRENTTAG := $(shell git describe --tags --abbrev=0 2>/dev/null || echo "dev")
 
 PROFILE ?= tomcat9
@@ -143,4 +144,18 @@ ci-run: deps-act
 
 .PHONY: help deps deps-check deps-ci deps-act env-check clean build test lint run ci ci-run \
 	verify-all jetty-run deploy tomcat-install tomcat-switch \
-	deps-print-updates deps-update release
+	deps-print-updates deps-update release renovate-bootstrap renovate-validate
+
+#renovate-bootstrap: @ Install nvm and npm for Renovate
+renovate-bootstrap:
+	@command -v node >/dev/null 2>&1 || { \
+		echo "Installing nvm $(NVM_VERSION)..."; \
+		curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v$(NVM_VERSION)/install.sh | bash; \
+		export NVM_DIR="$$HOME/.nvm"; \
+		[ -s "$$NVM_DIR/nvm.sh" ] && . "$$NVM_DIR/nvm.sh"; \
+		nvm install --lts; \
+	}
+
+#renovate-validate: @ Validate Renovate configuration
+renovate-validate: renovate-bootstrap
+	@npx --yes renovate --platform=local

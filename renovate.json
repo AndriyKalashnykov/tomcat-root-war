@@ -2,17 +2,40 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:best-practices",
-    ":semanticCommits"
+    ":semanticCommitType(chore)"
   ],
+  "commitMessagePrefix": "chore(all): ",
+  "commitMessageAction": "update",
+  "commitBody": "Signed-off-by: Renovate Bot <bot@renovateapp.com>",
   "labels": ["dependencies"],
+  "enabledManagers": ["maven", "github-actions"],
+  "prConcurrentLimit": 50,
+  "prHourlyLimit": 0,
+  "platformAutomerge": true,
   "automerge": true,
   "automergeType": "pr",
-  "platformAutomerge": true,
+  "automergeStrategy": "squash",
+  "ignoreTests": false,
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "automerge": true,
+    "minimumReleaseAge": "0 days"
+  },
   "packageRules": [
     {
-      "description": "Group GitHub Actions updates",
+      "description": "Wait 3 days before automerging major updates",
+      "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Group GitHub Actions into one PR",
       "matchManagers": ["github-actions"],
-      "groupName": "github actions"
+      "groupName": "GitHub Actions"
+    },
+    {
+      "description": "Label Java packages",
+      "matchCategories": ["java"],
+      "addLabels": ["lang: java"]
     },
     {
       "description": "Disable Jetty major updates (version tied to Tomcat profile)",
