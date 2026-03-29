@@ -4,6 +4,7 @@ on:
 
   push:
     branches: [ master ]
+    tags: [ 'v*' ]
 
   pull_request:
     branches: [ master ]
@@ -16,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  ci:
 
     runs-on: ubuntu-latest
 

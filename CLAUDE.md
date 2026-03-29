@@ -69,7 +69,13 @@ The `Makefile` wraps Maven and the scripts. All profile-aware targets accept `PR
 
 ## CI
 
-GitHub Actions (`ci.yml`) tests all 3 profiles on push/PR to master. Matrix: JDK 11, 18, 25 (Temurin) for tomcat9/tomcat10; JDK 18, 25 for tomcat11 (requires Java 17+). Each matrix entry runs `make lint`, `make build`, and `make test`.
+GitHub Actions (`ci.yml`) runs on push to `master`, tags `v*`, and pull requests. Matrix strategy tests across:
+
+- **Tomcat 9**: JDK 11, 18, 25 (Temurin)
+- **Tomcat 10**: JDK 18, 25 (Temurin)
+- **Tomcat 11**: JDK 25 (Temurin)
+
+Each matrix entry runs `make lint`, `make build`, and `make test`.
 
 ## Skills
 

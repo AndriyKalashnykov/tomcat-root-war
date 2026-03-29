@@ -1,6 +1,7 @@
 [![CI](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/ci.yml/badge.svg)](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/ci.yml)
 [![Hits](https://hits.sh/github.com/AndriyKalashnykov/tomcat-root-war.svg?view=today-total&style=plastic)](https://hits.sh/github.com/AndriyKalashnykov/tomcat-root-war/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
+[![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://app.renovatebot.com/dashboard#github/AndriyKalashnykov/tomcat-root-war)
 
 # Tomcat ROOT WAR
 
@@ -8,26 +9,29 @@ A minimal Java web application that replaces Tomcat's default ROOT webapp (`$TOM
 
 Supports **Tomcat 9**, **10**, and **11** via Maven profiles.
 
-## Prerequisites
-
-- [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-- [`GNU Make`](https://www.gnu.org/software/make/)
-- [sdkman](https://sdkman.io/install)
-
-Install the correct JDK and Maven for the active profile via SDKMAN:
-
-```bash
-make deps-check
-```
-
 ## Quick Start
 
 ```bash
-git clone git@github.com:AndriyKalashnykov/tomcat-root-war.git
-cd tomcat-root-war
-make build
-make jetty-run
+make deps-check    # install JDK and Maven via SDKMAN
+make build         # build ROOT.war (Tomcat 9 by default)
+make jetty-run     # run locally with embedded Jetty
 # open http://localhost:8080/
+```
+
+## Prerequisites
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| [GNU Make](https://www.gnu.org/software/make/) | 3.81+ | Build orchestration |
+| [SDKMAN](https://sdkman.io/) | latest | Java/Maven version management |
+| [JDK](https://adoptium.net/) | 11+ | Java runtime and compiler (installed via SDKMAN) |
+| [Maven](https://maven.apache.org/) | 3.9+ | Build and dependency management (installed via SDKMAN) |
+| [act](https://github.com/nektos/act) | latest | Local GitHub Actions testing (optional) |
+
+Install all required dependencies:
+
+```bash
+make deps-check
 ```
 
 ## Build Profiles
@@ -48,30 +52,50 @@ make build PROFILE=tomcat10      # Tomcat 10
 make build PROFILE=tomcat11      # Tomcat 11
 ```
 
-## Make Tasks
+## Available Make Targets
 
-| Command | Description |
-|---------|-------------|
-| `make help` | List all available tasks |
+Run `make help` to see all available targets.
+
+### Build & Run
+
+| Target | Description |
+|--------|-------------|
+| `make build` | Build ROOT.war (use PROFILE=tomcat9\|tomcat10\|tomcat11) |
+| `make test` | Run tests (use PROFILE=tomcat9\|tomcat10\|tomcat11) |
+| `make lint` | Check code style with Maven Checkstyle |
+| `make clean` | Cleanup build artifacts |
+| `make run` | Run locally with Jetty (alias for jetty-run) |
+| `make jetty-run` | Run locally with embedded Jetty server |
+| `make verify-all` | Verify build compiles for all Tomcat profiles |
+
+### Deployment
+
+| Target | Description |
+|--------|-------------|
+| `make deploy` | Build and deploy ROOT.war to Tomcat |
+| `make tomcat-install` | Download and install Tomcat 9, 10, 11 to ~/tomcat/ |
+| `make tomcat-switch` | Switch active Tomcat version |
+
+### CI
+
+| Target | Description |
+|--------|-------------|
+| `make ci` | Run full local CI pipeline |
+| `make ci-run` | Run GitHub Actions workflow locally via [act](https://github.com/nektos/act) |
+
+### Dependencies & Utilities
+
+| Target | Description |
+|--------|-------------|
 | `make deps` | Check required tools are installed |
 | `make deps-check` | Install JDK and Maven via SDKMAN |
 | `make deps-ci` | Install Maven for CI environments |
 | `make deps-act` | Install act for local GitHub Actions testing |
-| `make env-check` | Check installed tools |
-| `make clean` | Remove build artifacts |
-| `make build` | Build `ROOT.war` |
-| `make test` | Run tests |
-| `make lint` | Check code style with Maven Checkstyle |
-| `make run` | Run locally with Jetty (alias for `jetty-run`) |
-| `make ci` | Run full local CI pipeline |
-| `make ci-run` | Run GitHub Actions workflow locally using act |
-| `make verify-all` | Compile all three profiles to check for errors |
-| `make jetty-run` | Run locally with embedded Jetty server |
-| `make deploy` | Build and deploy `ROOT.war` to Tomcat |
-| `make tomcat-install` | Download and install Tomcat 9, 10, 11 to `~/tomcat/` |
-| `make tomcat-switch` | Switch the active Tomcat version |
-| `make deps-print-updates` | Show available dependency updates |
+| `make deps-print-updates` | Print project dependency updates |
 | `make deps-update` | Update dependencies to latest releases |
+| `make env-check` | Check installed tools |
+| `make renovate-bootstrap` | Install nvm and npm for Renovate |
+| `make renovate-validate` | Validate Renovate configuration |
 | `make release` | Create and push a new tag |
 
 All profile-aware targets default to `tomcat9`. Set `PROFILE=tomcat10` or `PROFILE=tomcat11` to override.
@@ -185,6 +209,18 @@ mvn clean install \
 ```bash
 jar tf ./target/ROOT.war
 ```
+
+## CI/CD
+
+GitHub Actions runs on every push to `master`, tags `v*`, and pull requests.
+
+| Job | Triggers | Steps |
+|-----|----------|-------|
+| **ci** | push (master, tags), PR | Lint, Build, Test |
+
+The CI job uses a matrix strategy testing across JDK 11/18/25 with Tomcat 9, JDK 18/25 with Tomcat 10, and JDK 25 with Tomcat 11.
+
+[Renovate](https://docs.renovatebot.com/) keeps dependencies up to date with platform automerge enabled.
 
 ## Screenshots
 
