@@ -70,3 +70,16 @@ The `Makefile` wraps Maven and the scripts. All profile-aware targets accept `PR
 ## CI
 
 GitHub Actions (`ci.yml`) tests all 3 profiles on push/PR to master. Matrix: JDK 11, 18, 25 (Temurin) for tomcat9/tomcat10; JDK 18, 25 for tomcat11 (requires Java 17+). Each matrix entry runs `make lint`, `make build`, and `make test`.
+
+## Skills
+
+Use the following skills when working on related files:
+
+| File(s) | Skill |
+|---------|-------|
+| `Makefile` | `/makefile` |
+| `renovate.json` | `/renovate` |
+| `README.md` | `/readme` |
+| `.github/workflows/*.yml` | `/ci-workflow` |
+
+When spawning subagents, always pass conventions from the respective skill into the agent's prompt.
