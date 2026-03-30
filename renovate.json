@@ -7,35 +7,50 @@
   "commitMessagePrefix": "chore(all): ",
   "commitMessageAction": "update",
   "commitBody": "Signed-off-by: Renovate Bot <bot@renovateapp.com>",
-  "labels": ["dependencies"],
-  "enabledManagers": ["maven", "github-actions"],
+  "labels": [
+    "dependencies"
+  ],
+  "enabledManagers": [
+    "maven",
+    "github-actions"
+  ],
   "prConcurrentLimit": 50,
   "prHourlyLimit": 0,
   "platformAutomerge": true,
   "automerge": true,
-  "automergeType": "pr",
+  "automergeType": "branch",
   "automergeStrategy": "squash",
   "ignoreTests": false,
   "vulnerabilityAlerts": {
-    "labels": ["security"],
+    "labels": [
+      "security"
+    ],
     "automerge": true,
     "minimumReleaseAge": "0 days"
   },
   "packageRules": [
     {
       "description": "Wait 3 days before automerging major updates",
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "minimumReleaseAge": "3 days"
     },
     {
       "description": "Group GitHub Actions into one PR",
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "groupName": "GitHub Actions"
     },
     {
       "description": "Label Java packages",
-      "matchCategories": ["java"],
-      "addLabels": ["lang: java"]
+      "matchCategories": [
+        "java"
+      ],
+      "addLabels": [
+        "lang: java"
+      ]
     },
     {
       "description": "Disable Jetty major updates (version tied to Tomcat profile)",
@@ -43,7 +58,9 @@
         "org.eclipse.jetty:jetty-maven-plugin",
         "org.eclipse.jetty.ee10:jetty-ee10-maven-plugin"
       ],
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "enabled": false
     },
     {
@@ -54,7 +71,9 @@
         "jakarta.servlet:jakarta.servlet-api",
         "org.glassfish.web:jakarta.servlet.jsp.jstl"
       ],
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "enabled": false
     }
   ]
