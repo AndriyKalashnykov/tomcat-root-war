@@ -4,7 +4,7 @@ SHELL := /bin/bash
 SDKMAN := $(HOME)/.sdkman/bin/sdkman-init.sh
 
 MAVEN_VER := 3.9.11
-ACT_VERSION := 0.2.86
+ACT_VERSION := 0.2.87
 NVM_VERSION := 0.40.4
 CURRENTTAG := $(shell git describe --tags --abbrev=0 2>/dev/null || echo "dev")
 
