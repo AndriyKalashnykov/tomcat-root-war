@@ -14,6 +14,11 @@ CURRENTTAG := $(shell git describe --tags --abbrev=0 2>/dev/null || echo "dev")
 # renovate: datasource=docker depName=catthehacker/ubuntu versioning=loose
 ACT_UBUNTU_VERSION := act-latest-20260615
 
+# Mermaid CLI image for linting the README's ```mermaid diagram (same engine
+# GitHub renders with). Renovate bumps it via the Makefile custom manager.
+# renovate: datasource=docker depName=minlag/mermaid-cli
+MERMAID_CLI_VERSION := 11.15.0
+
 PROFILE ?= tomcat9
 ALLOWED_PROFILES := tomcat9 tomcat10 tomcat11
 
@@ -68,8 +73,33 @@ trivy-fs: deps
 gitleaks-scan: deps
 	@gitleaks dir . --no-banner --redact
 
-#static-check: @ Run all static analysis (lint + trivy-fs + gitleaks)
-static-check: lint trivy-fs gitleaks-scan
+#mermaid-lint: @ Validate Mermaid diagrams in markdown (minlag/mermaid-cli, GitHub's engine)
+mermaid-lint:
+	@command -v docker >/dev/null 2>&1 || { echo "ERROR: docker is required for mermaid-lint"; exit 1; }
+	@set -euo pipefail; \
+	MD_FILES=$$(grep -lF '```mermaid' README.md CLAUDE.md 2>/dev/null || true); \
+	if [ -z "$$MD_FILES" ]; then echo "No Mermaid blocks found — skipping."; exit 0; fi; \
+	IMAGE=minlag/mermaid-cli:$(MERMAID_CLI_VERSION); \
+	for attempt in 1 2 3; do \
+		if docker pull --quiet "$$IMAGE" >/dev/null 2>&1; then break; fi; \
+		if [ "$$attempt" -eq 3 ]; then echo "ERROR: docker pull $$IMAGE failed after 3 attempts"; exit 1; fi; \
+		delay=$$((attempt * 5)); echo "  ! docker pull failed (attempt $$attempt/3); retrying in $${delay}s..."; sleep "$$delay"; \
+	done; \
+	FAILED=0; \
+	for md in $$MD_FILES; do \
+		echo "Validating Mermaid blocks in $$md..."; \
+		LOG=$$(mktemp); \
+		if docker run --rm -v "$$PWD:/data:ro" "$$IMAGE" -i "/data/$$md" -o "/tmp/$$(basename $$md .md).svg" >"$$LOG" 2>&1; then \
+			echo "  ✓ All blocks rendered cleanly."; \
+		else \
+			echo "  ✗ Parse error in $$md:"; sed 's/^/    /' "$$LOG"; FAILED=$$((FAILED + 1)); \
+		fi; \
+		rm -f "$$LOG"; \
+	done; \
+	if [ "$$FAILED" -gt 0 ]; then echo "Mermaid lint: $$FAILED file(s) had parse errors."; exit 1; fi
+
+#static-check: @ Run all static analysis (lint + trivy-fs + gitleaks + mermaid-lint)
+static-check: lint trivy-fs gitleaks-scan mermaid-lint
 	@echo "static-check passed."
 
 #run: @ Run locally with Jetty (alias for jetty-run)
@@ -150,6 +180,6 @@ ci-run: deps
 renovate-validate: deps
 	@npx --yes renovate@latest --platform=local
 
-.PHONY: help deps clean build test lint trivy-fs gitleaks-scan static-check \
+.PHONY: help deps clean build test lint trivy-fs gitleaks-scan mermaid-lint static-check \
 	run ci ci-run verify-all jetty-run deploy tomcat-install tomcat-switch \
 	deps-print-updates deps-update release renovate-validate

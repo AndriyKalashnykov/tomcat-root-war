@@ -9,6 +9,28 @@ A minimal Java web application that replaces Tomcat's default ROOT webapp (`$TOM
 
 Supports **Tomcat 9**, **10**, and **11** via Maven profiles.
 
+```mermaid
+C4Container
+    title ROOT WAR — request flow
+
+    Person(user, "User", "Web browser")
+
+    Container_Boundary(container, "Servlet container — Tomcat 9/10/11 or embedded Jetty") {
+        Container(html, "index.html", "Static HTML", "Welcome page served at /")
+        Container(servlet, "InfoServlet", "Java Servlet (javax or jakarta)", "Mapped at /infoservlet; forwards to the JSP")
+        Container(jsp, "index.jsp", "JSP", "Renders server info, request headers, and cookies")
+    }
+
+    Rel(user, html, "GET /", "HTTP")
+    Rel(user, servlet, "GET /infoservlet", "HTTP")
+    Rel(user, jsp, "GET /index.jsp", "HTTP")
+    Rel(servlet, jsp, "forwards via RequestDispatcher")
+
+    UpdateLayoutConfig($c4ShapeInRow="1", $c4BoundaryInRow="1")
+```
+
+The WAR deploys at context path `/` (replacing the container's default ROOT app). A single codebase targets both the `javax.servlet` (Tomcat 9) and `jakarta.servlet` (Tomcat 10/11) namespaces via Maven profiles that select the matching source tree (`src/main/java` vs `src/main/java-jakarta`).
+
 ## Quick Start
 
 ```bash
@@ -75,9 +97,10 @@ Run `make help` to see all available targets.
 
 | Target | Description |
 |--------|-------------|
-| `make static-check` | Run all static analysis (`lint` + `trivy-fs` + `gitleaks-scan`) |
+| `make static-check` | Run all static analysis (`lint` + `trivy-fs` + `gitleaks-scan` + `mermaid-lint`) |
 | `make trivy-fs` | Scan the filesystem for vulnerabilities and secrets ([Trivy](https://github.com/aquasecurity/trivy)) |
 | `make gitleaks-scan` | Scan the working tree for committed secrets ([gitleaks](https://github.com/gitleaks/gitleaks)) |
+| `make mermaid-lint` | Validate the README Mermaid diagram with [mermaid-cli](https://github.com/mermaid-js/mermaid-cli) (GitHub's renderer) |
 
 ### Deployment
 
