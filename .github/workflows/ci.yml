@@ -78,19 +78,27 @@ jobs:
 
       matrix:
         include:
-          # Tomcat 9 (javax.servlet, Servlet 4.0) - compiler target 11
+          # Tomcat 9 (javax.servlet, Servlet 4.0) - compiler release 11
           - java: '11'
             maven_profile: 'tomcat9'
+          - java: '17'
+            maven_profile: 'tomcat9'
           - java: '18'
+            maven_profile: 'tomcat9'
+          - java: '21'
             maven_profile: 'tomcat9'
           - java: '25'
             maven_profile: 'tomcat9'
-          # Tomcat 10 (jakarta.servlet, Servlet 6.1) - compiler target 17
+          # Tomcat 10 (jakarta.servlet, Servlet 6.1) - compiler release 17
+          - java: '17'
+            maven_profile: 'tomcat10'
           - java: '18'
             maven_profile: 'tomcat10'
           - java: '25'
             maven_profile: 'tomcat10'
-          # Tomcat 11 (jakarta.servlet, Servlet 6.1) - compiler target 21
+          # Tomcat 11 (jakarta.servlet, Servlet 6.1) - compiler release 21
+          - java: '21'
+            maven_profile: 'tomcat11'
           - java: '25'
             maven_profile: 'tomcat11'
 

@@ -60,9 +60,9 @@ Each profile targets a specific Tomcat version with the appropriate Servlet API:
 
 | Profile | Tomcat | Servlet API | Java release | CI-tested JDKs |
 |---------|--------|-------------|--------------|----------------|
-| `tomcat9` (default) | 9.0.x | `javax.servlet` 4.0 | 11 | 11, 18, 25 |
-| `tomcat10` | 10.1.x | `jakarta.servlet` 6.1 | 17 | 18, 25 |
-| `tomcat11` | 11.0.x | `jakarta.servlet` 6.1 | 21 | 25 |
+| `tomcat9` (default) | 9.0.x | `javax.servlet` 4.0 | 11 | 11, 17, 18, 21, 25 |
+| `tomcat10` | 10.1.x | `jakarta.servlet` 6.1 | 17 | 17, 18, 25 |
+| `tomcat11` | 11.0.x | `jakarta.servlet` 6.1 | 21 | 21, 25 |
 
 Select a profile with `PROFILE=`:
 
@@ -245,7 +245,7 @@ GitHub Actions runs on every push to `master`, tags `v*`, and pull requests.
 | **build** | when `changes` reports code | `make lint` + `make build` + `make test` across the JDK × Tomcat matrix |
 | **ci-pass** | always | Aggregator gate — succeeds only if every job passed; the single required status check on `master` (repository ruleset) |
 
-The **build** job uses a matrix strategy testing across JDK 11/18/25 with Tomcat 9, JDK 18/25 with Tomcat 10, and JDK 25 with Tomcat 11. The JDK for each leg is provided by [mise](https://mise.jdx.dev/) via the `MISE_JAVA_VERSION` override.
+The **build** job uses a matrix strategy testing across JDK 11/17/18/21/25 with Tomcat 9, JDK 17/18/25 with Tomcat 10, and JDK 21/25 with Tomcat 11. The JDK for each leg is provided by [mise](https://mise.jdx.dev/) via the `MISE_JAVA_VERSION` override.
 
 [Renovate](https://docs.renovatebot.com/) keeps dependencies up to date and automerges PRs once CI is green.
 
