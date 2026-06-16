@@ -41,6 +41,26 @@ jobs:
               - '.mise.toml'
               - '.github/workflows/ci.yml'
 
+  static-check:
+
+    needs: [ changes ]
+    if: ${{ needs.changes.outputs.code == 'true' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+    - name: Set up tools (mise)
+      uses: jdx/mise-action@dba19683ed58901619b14f395a24841710cb4925 # v4.1.0
+      with:
+        install: true
+        cache: true
+
+    - name: Static analysis (lint + trivy-fs + gitleaks)
+      run: make static-check
+
   build:
 
     needs: [ changes ]
@@ -103,7 +123,7 @@ jobs:
 
   ci-pass:
     if: always()
-    needs: [ changes, build ]
+    needs: [ changes, static-check, build ]
     runs-on: ubuntu-latest
     steps:
       - name: Verify all jobs passed

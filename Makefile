@@ -54,11 +54,23 @@ test: deps
 lint: deps
 	@mvn -B validate -P$(PROFILE)
 
+#trivy-fs: @ Scan filesystem for vulnerabilities and secrets (Trivy)
+trivy-fs: deps
+	@trivy fs --scanners vuln,secret --severity HIGH,CRITICAL --exit-code 1 --no-progress .
+
+#gitleaks-scan: @ Scan the working tree for committed secrets (gitleaks)
+gitleaks-scan: deps
+	@gitleaks dir . --no-banner --redact
+
+#static-check: @ Run all static analysis (lint + trivy-fs + gitleaks)
+static-check: lint trivy-fs gitleaks-scan
+	@echo "static-check passed."
+
 #run: @ Run locally with Jetty (alias for jetty-run)
 run: jetty-run
 
 #ci: @ Run full local CI pipeline
-ci: deps clean lint build test
+ci: deps clean static-check build test
 	@echo "Local CI pipeline passed."
 
 #verify-all: @ Verify build compiles for all Tomcat profiles
@@ -114,6 +126,6 @@ ci-run: deps
 renovate-validate: deps
 	@npx --yes renovate@latest --platform=local
 
-.PHONY: help deps clean build test lint run ci ci-run verify-all jetty-run \
-	deploy tomcat-install tomcat-switch deps-print-updates deps-update \
-	release renovate-validate
+.PHONY: help deps clean build test lint trivy-fs gitleaks-scan static-check \
+	run ci ci-run verify-all jetty-run deploy tomcat-install tomcat-switch \
+	deps-print-updates deps-update release renovate-validate
