@@ -12,13 +12,14 @@
   ],
   "enabledManagers": [
     "maven",
-    "github-actions"
+    "github-actions",
+    "mise"
   ],
   "prConcurrentLimit": 50,
   "prHourlyLimit": 0,
   "platformAutomerge": true,
   "automerge": true,
-  "automergeType": "branch",
+  "automergeType": "pr",
   "automergeStrategy": "squash",
   "ignoreTests": false,
   "vulnerabilityAlerts": {

@@ -80,14 +80,10 @@
     <%
 
         Cookie[] arr1 = request.getCookies();
-        String cookiename = "";
-        String cookievalue ="";
         if ((arr1 != null) && (arr1.length > 0))  {
         for (int i = 0; i < arr1.length; i++) {
-            cookiename = arr1[i].getName();
-            cookievalue = arr1[i].getValue();
-        }
-
+            String cookiename = arr1[i].getName();
+            String cookievalue = arr1[i].getValue();
     %>
     <tr>
         <td>
@@ -97,7 +93,10 @@
             <%=cookievalue %>
         </td>
     </tr>
-    <% } %>
+    <%
+        }
+        }
+    %>
 </table>
 
 
