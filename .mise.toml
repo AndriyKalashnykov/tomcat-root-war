@@ -1,0 +1,9 @@
+# Single source of truth for the project toolchain (mise — portfolio policy).
+# Local dev uses the `java` pin below for all profiles (JDK 21 compiles the
+# tomcat9/10/11 source-target levels 11/17/21). CI overrides the JDK per
+# matrix leg via the MISE_JAVA_VERSION env var (see .github/workflows/ci.yml).
+[tools]
+java = "temurin-21.0.11+10.0.LTS"
+maven = "3.9.11"
+node = "24.16.0"
+"aqua:nektos/act" = "0.2.87"

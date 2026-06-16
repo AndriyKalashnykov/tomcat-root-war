@@ -9,15 +9,42 @@ on:
   pull_request:
     branches: [ master ]
 
+  workflow_call:
+
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  ci:
+
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: dorny/paths-filter@6852f92c20ea7fd3b0c25de3b5112db3a98da050 # v3
+        id: filter
+        with:
+          # `base` is ignored on pull_request events (PR base is implicit) and
+          # required for push events / local `act` runs.
+          base: ${{ github.event_name == 'push' && 'master' || '' }}
+          filters: |
+            code:
+              - 'src/**'
+              - 'pom.xml'
+              - 'Makefile'
+              - '.mise.toml'
+              - '.github/workflows/ci.yml'
+
+  build:
+
+    needs: [ changes ]
+    if: ${{ needs.changes.outputs.code == 'true' }}
 
     runs-on: ubuntu-latest
 
@@ -27,39 +54,43 @@ jobs:
         include:
           # Tomcat 9 (javax.servlet, Servlet 4.0) - compiler target 11
           - java: '11'
-            java-distro: 'temurin'
             maven_profile: 'tomcat9'
           - java: '18'
-            java-distro: 'temurin'
             maven_profile: 'tomcat9'
           - java: '25'
-            java-distro: 'temurin'
             maven_profile: 'tomcat9'
-          # Tomcat 10 (jakarta.servlet, Servlet 6.0) - compiler target 17
+          # Tomcat 10 (jakarta.servlet, Servlet 6.1) - compiler target 17
           - java: '18'
-            java-distro: 'temurin'
             maven_profile: 'tomcat10'
           - java: '25'
-            java-distro: 'temurin'
             maven_profile: 'tomcat10'
           # Tomcat 11 (jakarta.servlet, Servlet 6.1) - compiler target 21
           - java: '25'
-            java-distro: 'temurin'
             maven_profile: 'tomcat11'
+
+    env:
+      # Override the .mise.toml java pin per matrix leg (mise resolves the
+      # partial version to the latest Temurin of that major).
+      MISE_JAVA_VERSION: temurin-${{ matrix.java }}
 
     steps:
 
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
-    - name: "Set up JDK ${{ matrix.java }} (${{ matrix.java-distro }})"
-      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5
+    - name: Set up tools (mise)
+      uses: jdx/mise-action@dba19683ed58901619b14f395a24841710cb4925 # v4.1.0
       with:
-        java-version: ${{ matrix.java }}
-        distribution: ${{ matrix.java-distro }}
-        cache: 'maven'
+        install: true
+        # cache disabled: MISE_JAVA_VERSION differs per matrix leg while the
+        # .mise.toml hash (the cache key) is identical across legs.
+        cache: false
 
-    - name: Setup Maven
-      run: make deps-ci
+    - name: Cache Maven repository
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('pom.xml') }}
+        restore-keys: ${{ runner.os }}-maven-
 
     - name: Lint
       run: make lint PROFILE=${{ matrix.maven_profile }}
@@ -69,3 +100,16 @@ jobs:
 
     - name: Test
       run: make test PROFILE=${{ matrix.maven_profile }}
+
+  ci-pass:
+    if: always()
+    needs: [ changes, build ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all jobs passed
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "One or more required jobs failed or were cancelled."
+            exit 1
+          fi
+          echo "All required jobs passed."

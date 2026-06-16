@@ -8,7 +8,10 @@ A minimal Java WAR application that replaces Tomcat's default ROOT webapp (`$TOM
 
 ## Build Commands
 
+The toolchain (JDK, Maven, node, act) is managed by [mise](https://mise.jdx.dev/) and pinned in `.mise.toml`. Run `make deps` once to install it (requires mise; `curl https://mise.run | sh`). Local dev builds every profile with the pinned JDK 21; CI tests the real per-JDK matrix.
+
 ```bash
+make deps                        # install the mise-pinned toolchain
 make build                       # Tomcat 9 (default)
 make build PROFILE=tomcat10      # Tomcat 10
 make build PROFILE=tomcat11      # Tomcat 11
@@ -23,18 +26,18 @@ Or with Maven directly:
 
 ```bash
 mvn -B package -Ptomcat9         # Tomcat 9 (default, javax.servlet)
-mvn -B package -Ptomcat10        # Tomcat 10 (jakarta.servlet 6.0)
+mvn -B package -Ptomcat10        # Tomcat 10 (jakarta.servlet 6.1)
 mvn -B package -Ptomcat11        # Tomcat 11 (jakarta.servlet 6.1)
 ```
 
-No test framework is configured — there are no tests to run.
+No test framework is configured — `make test` (and the CI `Test` step) runs `mvn test` against zero tests, so it is currently a no-op placeholder.
 
 ## Maven Profiles
 
 | Profile | Tomcat | Servlet API | source/target | JDK |
 |---------|--------|-------------|---------------|-----|
 | `tomcat9` (default) | 9.0.x | `javax.servlet` 4.0 | 11 | 11-tem |
-| `tomcat10` | 10.1.x | `jakarta.servlet` 6.0 | 17 | 17-tem |
+| `tomcat10` | 10.1.x | `jakarta.servlet` 6.1 | 17 | 17-tem |
 | `tomcat11` | 11.0.x | `jakarta.servlet` 6.1 | 21 | 21-tem |
 
 Properties per profile: `maven.compiler.source`, `maven.compiler.target`, `jdk.version`, `app.sourceDirectory`, `app.webXml`.
@@ -65,17 +68,18 @@ The two `InfoServlet.java` files are identical except for imports (`javax.servle
 
 ## Makefile
 
-The `Makefile` wraps Maven and the scripts. All profile-aware targets accept `PROFILE=tomcat9|tomcat10|tomcat11` (default: `tomcat9`). The `JAVA_VER` is read dynamically from the active profile's `jdk.version` property.
+The `Makefile` wraps Maven and the scripts. All profile-aware targets accept `PROFILE=tomcat9|tomcat10|tomcat11` (default: `tomcat9`). `make deps` installs the mise-pinned toolchain; mise shims are prepended to `PATH` so recipes find the pinned `java`/`mvn`/`act`.
 
 ## CI
 
-GitHub Actions (`ci.yml`) runs on push to `master`, tags `v*`, and pull requests. Matrix strategy tests across:
+GitHub Actions (`ci.yml`) runs on push to `master`, tags `v*`, and pull requests. The toolchain is provided by `jdx/mise-action`; the JDK for each matrix leg is set via the `MISE_JAVA_VERSION` env override. Jobs:
 
-- **Tomcat 9**: JDK 11, 18, 25 (Temurin)
-- **Tomcat 10**: JDK 18, 25 (Temurin)
-- **Tomcat 11**: JDK 25 (Temurin)
-
-Each matrix entry runs `make lint`, `make build`, and `make test`.
+- **changes** — `dorny/paths-filter` detects whether code paths changed (docs-only changes skip the build).
+- **build** — runs `make lint`, `make build`, `make test` across the matrix:
+  - **Tomcat 9**: JDK 11, 18, 25 (Temurin)
+  - **Tomcat 10**: JDK 18, 25 (Temurin)
+  - **Tomcat 11**: JDK 25 (Temurin)
+- **ci-pass** — aggregator gate; the single required status check.
 
 ## Skills
 
@@ -86,6 +90,6 @@ Use the following skills when working on related files:
 | `Makefile` | `/makefile` |
 | `renovate.json` | `/renovate` |
 | `README.md` | `/readme` |
-| `.github/workflows/*.yml` | `/ci-workflow` |
+| `.github/workflows/*.{yml,yaml}` | `/ci-workflow` |
 
 When spawning subagents, always pass conventions from the respective skill into the agent's prompt.

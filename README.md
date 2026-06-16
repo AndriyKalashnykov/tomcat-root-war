@@ -12,7 +12,7 @@ Supports **Tomcat 9**, **10**, and **11** via Maven profiles.
 ## Quick Start
 
 ```bash
-make deps-check    # install JDK and Maven via SDKMAN
+make deps          # install the toolchain (JDK, Maven, node, act) via mise
 make build         # build ROOT.war (Tomcat 9 by default)
 make jetty-run     # run locally with embedded Jetty
 # open http://localhost:8080/
@@ -20,18 +20,21 @@ make jetty-run     # run locally with embedded Jetty
 
 ## Prerequisites
 
+The toolchain (JDK, Maven, node, act) is managed by [mise](https://mise.jdx.dev/) and pinned in [`.mise.toml`](.mise.toml). Install mise once, then `make deps` installs everything else.
+
 | Tool | Version | Purpose |
 |------|---------|---------|
 | [GNU Make](https://www.gnu.org/software/make/) | 3.81+ | Build orchestration |
-| [SDKMAN](https://sdkman.io/) | latest | Java/Maven version management |
-| [JDK](https://adoptium.net/) | 11+ | Java runtime and compiler (installed via SDKMAN) |
-| [Maven](https://maven.apache.org/) | 3.9+ | Build and dependency management (installed via SDKMAN) |
-| [act](https://github.com/nektos/act) | latest | Local GitHub Actions testing (optional) |
+| [mise](https://mise.jdx.dev/) | latest | Toolchain version manager (provides JDK, Maven, node, act) |
+| [JDK](https://adoptium.net/) | 11/17/21 | Java runtime and compiler (provided by mise; local dev uses JDK 21) |
+| [Maven](https://maven.apache.org/) | 3.9+ | Build and dependency management (provided by mise) |
+| [act](https://github.com/nektos/act) | pinned | Local GitHub Actions testing (provided by mise, optional) |
 
-Install all required dependencies:
+Install mise (see the [mise docs](https://mise.jdx.dev/getting-started.html)), then install all pinned tools:
 
 ```bash
-make deps-check
+curl https://mise.run | sh   # one-time mise install
+make deps                    # install JDK, Maven, node, act from .mise.toml
 ```
 
 ## Build Profiles
@@ -41,7 +44,7 @@ Each profile targets a specific Tomcat version with the appropriate Servlet API:
 | Profile | Tomcat | Servlet API | Java | JDK |
 |---------|--------|-------------|------|-----|
 | `tomcat9` (default) | 9.0.x | `javax.servlet` 4.0 | 11 | 11-tem |
-| `tomcat10` | 10.1.x | `jakarta.servlet` 6.0 | 17 | 17-tem |
+| `tomcat10` | 10.1.x | `jakarta.servlet` 6.1 | 17 | 17-tem |
 | `tomcat11` | 11.0.x | `jakarta.servlet` 6.1 | 21 | 21-tem |
 
 Select a profile with `PROFILE=`:
@@ -61,8 +64,8 @@ Run `make help` to see all available targets.
 | Target | Description |
 |--------|-------------|
 | `make build` | Build ROOT.war (use PROFILE=tomcat9\|tomcat10\|tomcat11) |
-| `make test` | Run tests (use PROFILE=tomcat9\|tomcat10\|tomcat11) |
-| `make lint` | Check code style with Maven Checkstyle |
+| `make test` | Run tests &mdash; no test suite is configured yet, so this is currently a no-op (use PROFILE=tomcat9\|tomcat10\|tomcat11) |
+| `make lint` | Validate POM and project structure (`mvn validate`) |
 | `make clean` | Cleanup build artifacts |
 | `make run` | Run locally with Jetty (alias for jetty-run) |
 | `make jetty-run` | Run locally with embedded Jetty server |
@@ -87,14 +90,9 @@ Run `make help` to see all available targets.
 
 | Target | Description |
 |--------|-------------|
-| `make deps` | Check required tools are installed |
-| `make deps-check` | Install JDK and Maven via SDKMAN |
-| `make deps-ci` | Install Maven for CI environments |
-| `make deps-act` | Install act for local GitHub Actions testing |
+| `make deps` | Install the toolchain (JDK, Maven, node, act) via mise |
 | `make deps-print-updates` | Print project dependency updates |
 | `make deps-update` | Update dependencies to latest releases |
-| `make env-check` | Check installed tools |
-| `make renovate-bootstrap` | Install nvm and npm for Renovate |
 | `make renovate-validate` | Validate Renovate configuration |
 | `make release` | Create and push a new tag |
 
@@ -214,27 +212,33 @@ jar tf ./target/ROOT.war
 
 GitHub Actions runs on every push to `master`, tags `v*`, and pull requests.
 
-| Job | Triggers | Steps |
-|-----|----------|-------|
-| **ci** | push (master, tags), PR | Lint, Build, Test |
+| Job | Triggers | Purpose |
+|-----|----------|---------|
+| **changes** | push (master, tags), PR | Detect whether code paths changed (skips the build on docs-only changes) |
+| **build** | when `changes` reports code | Lint, Build, Test across the JDK × Tomcat matrix |
+| **ci-pass** | always | Aggregator gate — the single required status check |
 
-The CI job uses a matrix strategy testing across JDK 11/18/25 with Tomcat 9, JDK 18/25 with Tomcat 10, and JDK 25 with Tomcat 11.
+The **build** job uses a matrix strategy testing across JDK 11/18/25 with Tomcat 9, JDK 18/25 with Tomcat 10, and JDK 25 with Tomcat 11. The JDK for each leg is provided by [mise](https://mise.jdx.dev/) via the `MISE_JAVA_VERSION` override.
 
-[Renovate](https://docs.renovatebot.com/) keeps dependencies up to date with platform automerge enabled.
+[Renovate](https://docs.renovatebot.com/) keeps dependencies up to date with PR automerge enabled (gated on the `ci-pass` check).
 
 ## Screenshots
 
 Default welcome page &mdash; [http://localhost:8080/](http://localhost:8080/)
-![index.html](images/http-8080-root.png)
+
+<img src="images/http-8080-root.png" alt="index.html" width="800">
 
 JSP &mdash; [http://localhost:8080/index.jsp](http://localhost:8080/index.jsp)
-![index.jsp](images/http-8080-index-jsp.png)
+
+<img src="images/http-8080-index-jsp.png" alt="index.jsp" width="800">
 
 Servlet &mdash; [http://localhost:8080/infoservlet](http://localhost:8080/infoservlet)
-![infoservlet](images/http-8080-infoservlet.png)
+
+<img src="images/http-8080-infoservlet.png" alt="infoservlet" width="800">
 
 HTML &mdash; [http://localhost:8080/index.html](http://localhost:8080/index.html)
-![index.html](images/http-8080-index-html.png)
+
+<img src="images/http-8080-index-html.png" alt="index.html" width="800">
 
 ## Used In
 
