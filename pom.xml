@@ -14,7 +14,6 @@
              API surface and avoids the "system modules path not set" warning
              when building on a newer local JDK. -->
         <maven.compiler.release>11</maven.compiler.release>
-        <jdk.version>11-tem</jdk.version>
         <app.sourceDirectory>src/main/java</app.sourceDirectory>
         <app.testSourceDirectory>src/test/java</app.testSourceDirectory>
         <app.webXml>src/main/webapp/WEB-INF/web.xml</app.webXml>
@@ -109,7 +108,6 @@
             </activation>
             <properties>
                 <maven.compiler.release>11</maven.compiler.release>
-                <jdk.version>11-tem</jdk.version>
             </properties>
             <dependencies>
                 <dependency>
@@ -141,7 +139,6 @@
             <id>tomcat10</id>
             <properties>
                 <maven.compiler.release>17</maven.compiler.release>
-                <jdk.version>17-tem</jdk.version>
                 <app.sourceDirectory>src/main/java-jakarta</app.sourceDirectory>
                 <app.testSourceDirectory>src/test/java-jakarta</app.testSourceDirectory>
                 <app.webXml>src/main/webapp/WEB-INF/web-jakarta.xml</app.webXml>
@@ -176,7 +173,6 @@
             <id>tomcat11</id>
             <properties>
                 <maven.compiler.release>21</maven.compiler.release>
-                <jdk.version>21-tem</jdk.version>
                 <app.sourceDirectory>src/main/java-jakarta</app.sourceDirectory>
                 <app.testSourceDirectory>src/test/java-jakarta</app.testSourceDirectory>
                 <app.webXml>src/main/webapp/WEB-INF/web-jakarta.xml</app.webXml>

@@ -34,13 +34,13 @@ Unit tests use **JUnit 5 + Mockito** (run via Surefire). Test sources are profil
 
 ## Maven Profiles
 
-| Profile | Tomcat | Servlet API | `release` | JDK |
-|---------|--------|-------------|-----------|-----|
-| `tomcat9` (default) | 9.0.x | `javax.servlet` 4.0 | 11 | 11-tem |
-| `tomcat10` | 10.1.x | `jakarta.servlet` 6.1 | 17 | 17-tem |
-| `tomcat11` | 11.0.x | `jakarta.servlet` 6.1 | 21 | 21-tem |
+| Profile | Tomcat | Servlet API | `maven.compiler.release` | CI-tested JDKs |
+|---------|--------|-------------|--------------------------|----------------|
+| `tomcat9` (default) | 9.0.x | `javax.servlet` 4.0 | 11 | 11, 18, 25 |
+| `tomcat10` | 10.1.x | `jakarta.servlet` 6.1 | 17 | 18, 25 |
+| `tomcat11` | 11.0.x | `jakarta.servlet` 6.1 | 21 | 25 |
 
-Properties per profile: `maven.compiler.release`, `jdk.version`, `app.sourceDirectory`, `app.testSourceDirectory`, `app.webXml`. The build uses `maven.compiler.release` (not separate `source`/`target`) so the compiler enforces the target JDK's API surface; `maven-compiler-plugin` is pinned with `<failOnWarning>true</failOnWarning>` (all profiles compile warning-clean).
+Properties per profile: `maven.compiler.release`, `app.sourceDirectory`, `app.testSourceDirectory`, `app.webXml`. The build uses `maven.compiler.release` (not separate `source`/`target`) so the compiler enforces the target JDK's API surface; `maven-compiler-plugin` is pinned with `<failOnWarning>true</failOnWarning>` (all profiles compile warning-clean). The per-leg CI JDK is set via `MISE_JAVA_VERSION` (see `.github/workflows/ci.yml`) — the `release` level is the bytecode target, the CI-tested JDKs are the runtimes each profile is verified on.
 
 ## Architecture
 
@@ -75,11 +75,12 @@ The `Makefile` wraps Maven and the scripts. All profile-aware targets accept `PR
 GitHub Actions (`ci.yml`) runs on push to `master`, tags `v*`, and pull requests. The toolchain is provided by `jdx/mise-action`; the JDK for each matrix leg is set via the `MISE_JAVA_VERSION` env override. Jobs:
 
 - **changes** — `dorny/paths-filter` detects whether code paths changed (docs-only changes skip the build).
+- **static-check** — runs `make static-check` (`lint` + `trivy-fs` + `gitleaks-scan` + `mermaid-lint`).
 - **build** — runs `make lint`, `make build`, `make test` across the matrix:
   - **Tomcat 9**: JDK 11, 18, 25 (Temurin)
   - **Tomcat 10**: JDK 18, 25 (Temurin)
   - **Tomcat 11**: JDK 25 (Temurin)
-- **ci-pass** — aggregator gate; the single required status check.
+- **ci-pass** — aggregator gate; succeeds only if every job passed. It is the single required status check on `master` (enforced via a repository ruleset).
 
 ## Skills
 
