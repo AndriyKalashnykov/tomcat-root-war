@@ -10,9 +10,12 @@ set -euo pipefail
 #   ./install-tomcat.sh --current 11             # set current symlink to 11
 #   ./install-tomcat.sh --versions 10 --current 10
 
-TOMCAT_9_VERSION="9.0.116"
-TOMCAT_10_VERSION="10.1.52"
-TOMCAT_11_VERSION="11.0.20"
+# renovate: datasource=maven depName=org.apache.tomcat:tomcat versioning=maven
+TOMCAT_9_VERSION="9.0.118"
+# renovate: datasource=maven depName=org.apache.tomcat:tomcat versioning=maven
+TOMCAT_10_VERSION="10.1.55"
+# renovate: datasource=maven depName=org.apache.tomcat:tomcat versioning=maven
+TOMCAT_11_VERSION="11.0.22"
 
 INSTALL_BASE="${HOME}/tomcat"
 CDN_MIRROR="https://dlcdn.apache.org/tomcat"

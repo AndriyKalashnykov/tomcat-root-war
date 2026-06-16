@@ -4,12 +4,18 @@ on:
   schedule:
     - cron: '0 0 * * 0'
   workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: cleanup-${{ github.workflow }}
+  cancel-in-progress: true
 
 permissions:
+  contents: read
   actions: write
 
 jobs:
-  cleanup:
+  cleanup-runs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
@@ -19,8 +25,40 @@ jobs:
     steps:
       - name: Delete old workflow runs
         run: |
-          CUTOFF=$(date -u -d "$RETAIN_DAYS days ago" +%Y-%m-%dT%H:%M:%SZ)
+          CUTOFF=$(date -u -d "${RETAIN_DAYS} days ago" +%Y-%m-%dT%H:%M:%SZ)
+          # Retain the newest KEEP_MINIMUM runs PER WORKFLOW (group_by
+          # .workflowName), THEN delete any remaining run older than CUTOFF.
+          # A single GLOBAL minimum can purge every run of a low-frequency
+          # workflow and flip it to `state: deleted` (deregistered).
           gh run list --repo "${{ github.repository }}" \
-            --json databaseId,createdAt --limit 200 \
-            --jq "sort_by(.createdAt) | reverse | .[$KEEP_MINIMUM:] | .[] | select(.createdAt < \\"$CUTOFF\\") | .databaseId" \
+            --json databaseId,createdAt,workflowName --limit 300 \
+          | jq -r --arg cutoff "$CUTOFF" --argjson keep "$KEEP_MINIMUM" '
+              group_by(.workflowName)
+              | map(sort_by(.createdAt) | reverse | .[$keep:])
+              | add // []
+              | .[] | select(.createdAt < $cutoff) | .databaseId
+            ' \
           | xargs -r -I{} gh run delete {} --repo "${{ github.repository }}"
+
+  cleanup-caches:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Delete caches from merged/deleted branches
+        run: |
+          echo "=== Cleaning caches from non-existent branches ==="
+          gh cache list --repo "${{ github.repository }}" --json id,ref,key --limit 200 \
+          | jq -r '.[] | "\(.id)\t\(.ref)\t\(.key)"' \
+          | while IFS=$'\t' read -r id ref key; do
+              branch="${ref#refs/heads/}"
+              # Keep caches for master, default branch, and tags
+              if [ "$branch" = "master" ] || [[ "$ref" == refs/tags/* ]]; then
+                continue
+              fi
+              if ! gh api "repos/${{ github.repository }}/branches/${branch}" --silent 2>/dev/null; then
+                echo "Deleting cache ${key} (branch ${branch} no longer exists)"
+                gh cache delete "$id" --repo "${{ github.repository }}" 2>/dev/null || true
+              fi
+            done

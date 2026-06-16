@@ -8,6 +8,12 @@ export PATH := $(HOME)/.local/share/mise/shims:$(PATH)
 
 CURRENTTAG := $(shell git describe --tags --abbrev=0 2>/dev/null || echo "dev")
 
+# act runner image — pin the DATED catthehacker tag. The floating act-* tags are
+# republished weekly; the dated form is immutable. Renovate bumps it via the
+# Makefile custom manager (see renovate.json).
+# renovate: datasource=docker depName=catthehacker/ubuntu versioning=loose
+ACT_UBUNTU_VERSION := act-latest-20260615
+
 PROFILE ?= tomcat9
 ALLOWED_PROFILES := tomcat9 tomcat10 tomcat11
 
@@ -30,7 +36,7 @@ help:
 	@echo
 	@echo "Commands :"
 	@echo
-	@grep -E '[a-zA-Z\.\-]+:.*?@ .*$$' $(MAKEFILE_LIST)| tr -d '#' | awk 'BEGIN {FS = ":.*?@ "}; {printf "\033[32m%-18s\033[0m - %s\n", $$1, $$2}'
+	@grep -E '[a-zA-Z\.\-]+:.*?@ .*$$' $(MAKEFILE_LIST)| tr -d '#' | awk 'BEGIN {FS = ":.*?@ "}; {printf "\033[32m%-20s\033[0m - %s\n", $$1, $$2}'
 
 #deps: @ Install the toolchain (java, maven, node, act) via mise
 deps:
@@ -119,8 +125,26 @@ release:
 
 #ci-run: @ Run GitHub Actions workflow locally using act (act installed via mise)
 ci-run: deps
-	@act push --container-architecture linux/amd64 \
-		--artifact-server-path /tmp/act-artifacts
+	@docker container prune -f >/dev/null 2>&1 || true
+	@# Forward a GitHub token (env-only via --secret KEY, never in argv) so mise's
+	@# aqua: backend can query the GitHub release API during `mise install` inside
+	@# the runner without hitting the 60-req/h anonymous rate limit. Derived from
+	@# the gh CLI. --pull=false reuses the cached runner image (avoids the
+	@# containerd-snapshotter RWLayer race). Random artifact port + mktemp dir keep
+	@# concurrent runs from colliding.
+	@if [ -z "$${GITHUB_TOKEN:-}" ] && command -v gh >/dev/null 2>&1; then \
+		export GITHUB_TOKEN="$$(gh auth token 2>/dev/null)"; \
+	fi; \
+	ARTIFACT_PATH=$$(mktemp -d -t act-artifacts.XXXXXX); \
+	ACT_PORT=$$(shuf -i 40000-59999 -n 1); \
+	secret_args=(); \
+	[ -n "$${GITHUB_TOKEN:-}" ] && secret_args+=(--secret GITHUB_TOKEN); \
+	act push --container-architecture linux/amd64 \
+		--pull=false \
+		-P ubuntu-latest=catthehacker/ubuntu:$(ACT_UBUNTU_VERSION) \
+		--artifact-server-port "$$ACT_PORT" \
+		--artifact-server-path "$$ARTIFACT_PATH" \
+		"$${secret_args[@]}"
 
 #renovate-validate: @ Validate Renovate configuration (node provided by mise)
 renovate-validate: deps

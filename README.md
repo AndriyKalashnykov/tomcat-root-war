@@ -71,6 +71,14 @@ Run `make help` to see all available targets.
 | `make jetty-run` | Run locally with embedded Jetty server |
 | `make verify-all` | Verify build compiles for all Tomcat profiles |
 
+### Code Quality & Security
+
+| Target | Description |
+|--------|-------------|
+| `make static-check` | Run all static analysis (`lint` + `trivy-fs` + `gitleaks-scan`) |
+| `make trivy-fs` | Scan the filesystem for vulnerabilities and secrets ([Trivy](https://github.com/aquasecurity/trivy)) |
+| `make gitleaks-scan` | Scan the working tree for committed secrets ([gitleaks](https://github.com/gitleaks/gitleaks)) |
+
 ### Deployment
 
 | Target | Description |

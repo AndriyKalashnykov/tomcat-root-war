@@ -9,9 +9,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Defaults for tomcat9 profile (overridden by other profiles) -->
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <!-- Defaults for tomcat9 profile (overridden by other profiles).
+             Use `release` (not source/target): it enforces the target JDK's
+             API surface and avoids the "system modules path not set" warning
+             when building on a newer local JDK. -->
+        <maven.compiler.release>11</maven.compiler.release>
         <jdk.version>11-tem</jdk.version>
         <app.sourceDirectory>src/main/java</app.sourceDirectory>
         <app.testSourceDirectory>src/test/java</app.testSourceDirectory>
@@ -40,6 +42,18 @@
         <sourceDirectory>${app.sourceDirectory}</sourceDirectory>
         <testSourceDirectory>${app.testSourceDirectory}</testSourceDirectory>
         <plugins>
+            <!-- Pinned (the other plugins are pinned too) + warnings-as-errors.
+                 All three profiles compile clean under `release`; any new
+                 warning (deprecation, unchecked) now fails the build instead
+                 of accumulating silently. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.15.0</version>
+                <configuration>
+                    <failOnWarning>true</failOnWarning>
+                </configuration>
+            </plugin>
             <!-- Resolve mockito-core's jar path into a property so Surefire can
                  load it as an explicit -javaagent (avoids the JDK 21+ "Dynamic
                  loading of agents will be disallowed" self-attach warning). -->
@@ -94,8 +108,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <maven.compiler.source>11</maven.compiler.source>
-                <maven.compiler.target>11</maven.compiler.target>
+                <maven.compiler.release>11</maven.compiler.release>
                 <jdk.version>11-tem</jdk.version>
             </properties>
             <dependencies>
@@ -127,8 +140,7 @@
         <profile>
             <id>tomcat10</id>
             <properties>
-                <maven.compiler.source>17</maven.compiler.source>
-                <maven.compiler.target>17</maven.compiler.target>
+                <maven.compiler.release>17</maven.compiler.release>
                 <jdk.version>17-tem</jdk.version>
                 <app.sourceDirectory>src/main/java-jakarta</app.sourceDirectory>
                 <app.testSourceDirectory>src/test/java-jakarta</app.testSourceDirectory>
@@ -163,8 +175,7 @@
         <profile>
             <id>tomcat11</id>
             <properties>
-                <maven.compiler.source>21</maven.compiler.source>
-                <maven.compiler.target>21</maven.compiler.target>
+                <maven.compiler.release>21</maven.compiler.release>
                 <jdk.version>21-tem</jdk.version>
                 <app.sourceDirectory>src/main/java-jakarta</app.sourceDirectory>
                 <app.testSourceDirectory>src/test/java-jakarta</app.testSourceDirectory>

@@ -34,13 +34,13 @@ Unit tests use **JUnit 5 + Mockito** (run via Surefire). Test sources are profil
 
 ## Maven Profiles
 
-| Profile | Tomcat | Servlet API | source/target | JDK |
-|---------|--------|-------------|---------------|-----|
+| Profile | Tomcat | Servlet API | `release` | JDK |
+|---------|--------|-------------|-----------|-----|
 | `tomcat9` (default) | 9.0.x | `javax.servlet` 4.0 | 11 | 11-tem |
 | `tomcat10` | 10.1.x | `jakarta.servlet` 6.1 | 17 | 17-tem |
 | `tomcat11` | 11.0.x | `jakarta.servlet` 6.1 | 21 | 21-tem |
 
-Properties per profile: `maven.compiler.source`, `maven.compiler.target`, `jdk.version`, `app.sourceDirectory`, `app.webXml`.
+Properties per profile: `maven.compiler.release`, `jdk.version`, `app.sourceDirectory`, `app.testSourceDirectory`, `app.webXml`. The build uses `maven.compiler.release` (not separate `source`/`target`) so the compiler enforces the target JDK's API surface; `maven-compiler-plugin` is pinned with `<failOnWarning>true</failOnWarning>` (all profiles compile warning-clean).
 
 ## Architecture
 
