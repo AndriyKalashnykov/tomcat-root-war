@@ -14,13 +14,55 @@
         <maven.compiler.target>11</maven.compiler.target>
         <jdk.version>11-tem</jdk.version>
         <app.sourceDirectory>src/main/java</app.sourceDirectory>
+        <app.testSourceDirectory>src/test/java</app.testSourceDirectory>
         <app.webXml>src/main/webapp/WEB-INF/web.xml</app.webXml>
+        <junit.version>5.14.4</junit.version>
+        <mockito.version>5.23.0</mockito.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <finalName>ROOT</finalName>
         <sourceDirectory>${app.sourceDirectory}</sourceDirectory>
+        <testSourceDirectory>${app.testSourceDirectory}</testSourceDirectory>
         <plugins>
+            <!-- Resolve mockito-core's jar path into a property so Surefire can
+                 load it as an explicit -javaagent (avoids the JDK 21+ "Dynamic
+                 loading of agents will be disallowed" self-attach warning). -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.11.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.6</version>
+                <configuration>
+                    <argLine>-javaagent:${org.mockito:mockito-core:jar}</argLine>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -33,6 +75,8 @@
                             <targetPath>WEB-INF</targetPath>
                             <excludes>
                                 <exclude>maven-status/</exclude>
+                                <exclude>test-classes/</exclude>
+                                <exclude>surefire-reports/</exclude>
                             </excludes>
                         </resource>
                     </webResources>
@@ -87,6 +131,7 @@
                 <maven.compiler.target>17</maven.compiler.target>
                 <jdk.version>17-tem</jdk.version>
                 <app.sourceDirectory>src/main/java-jakarta</app.sourceDirectory>
+                <app.testSourceDirectory>src/test/java-jakarta</app.testSourceDirectory>
                 <app.webXml>src/main/webapp/WEB-INF/web-jakarta.xml</app.webXml>
             </properties>
             <dependencies>
@@ -122,6 +167,7 @@
                 <maven.compiler.target>21</maven.compiler.target>
                 <jdk.version>21-tem</jdk.version>
                 <app.sourceDirectory>src/main/java-jakarta</app.sourceDirectory>
+                <app.testSourceDirectory>src/test/java-jakarta</app.testSourceDirectory>
                 <app.webXml>src/main/webapp/WEB-INF/web-jakarta.xml</app.webXml>
             </properties>
             <dependencies>

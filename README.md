@@ -64,7 +64,7 @@ Run `make help` to see all available targets.
 | Target | Description |
 |--------|-------------|
 | `make build` | Build ROOT.war (use PROFILE=tomcat9\|tomcat10\|tomcat11) |
-| `make test` | Run tests &mdash; no test suite is configured yet, so this is currently a no-op (use PROFILE=tomcat9\|tomcat10\|tomcat11) |
+| `make test` | Run the JUnit 5 + Mockito unit tests (use PROFILE=tomcat9\|tomcat10\|tomcat11) |
 | `make lint` | Validate POM and project structure (`mvn validate`) |
 | `make clean` | Cleanup build artifacts |
 | `make run` | Run locally with Jetty (alias for jetty-run) |
