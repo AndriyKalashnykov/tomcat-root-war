@@ -24,7 +24,10 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      code: ${{ steps.filter.outputs.code }}
+      # Tag pushes always run the full pipeline: the tag SHA usually equals
+      # master HEAD, so paths-filter (base: master) would see an empty diff and
+      # skip every gated job, silently leaving a tagged release un-verified.
+      code: ${{ startsWith(github.ref, 'refs/tags/') && 'true' || steps.filter.outputs.code }}
     steps:
       - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
       - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
@@ -40,6 +43,9 @@ jobs:
               - 'Makefile'
               - '.mise.toml'
               - '.github/workflows/ci.yml'
+              # CLAUDE.md is project config (build conventions / skill mappings),
+              # not docs — its edits MUST run CI (/ci-workflow §15c).
+              - 'CLAUDE.md'
 
   static-check:
 

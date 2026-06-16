@@ -13,15 +13,38 @@
   "enabledManagers": [
     "maven",
     "github-actions",
-    "mise"
+    "mise",
+    "custom.regex"
   ],
   "prConcurrentLimit": 50,
   "prHourlyLimit": 0,
-  "platformAutomerge": true,
   "automerge": true,
   "automergeType": "pr",
   "automergeStrategy": "squash",
+  "platformAutomerge": false,
   "ignoreTests": false,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Makefile tool pins via inline # renovate: comments (e.g. ACT_UBUNTU_VERSION)",
+      "managerFilePatterns": [
+        "Makefile"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: versioning=(?<versioning>\\S+))?\\n[A-Z0-9_]+\\s*[?:]?=\\s*(?<currentValue>\\S+)"
+      ]
+    },
+    {
+      "customType": "regex",
+      "description": "Tomcat versions in scripts/install-tomcat.sh via inline # renovate: comments",
+      "managerFilePatterns": [
+        "scripts/install-tomcat.sh"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: versioning=(?<versioning>\\S+))?\\n[A-Z0-9_]+=\"(?<currentValue>[^\"]+)\""
+      ]
+    }
+  ],
   "vulnerabilityAlerts": {
     "labels": [
       "security"
@@ -34,6 +57,16 @@
       "description": "Wait 3 days before automerging major updates",
       "matchUpdateTypes": [
         "major"
+      ],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "description": "Hold mise github-tags tool bumps (aqua: act/trivy/gitleaks) 3 days so the upstream GitHub Release assets publish before the bump PR opens — avoids the tag-before-publish 404 (e.g. trivy v0.71.1, whose release workflow has failed mid-publish before).",
+      "matchManagers": [
+        "mise"
+      ],
+      "matchDatasources": [
+        "github-tags"
       ],
       "minimumReleaseAge": "3 days"
     },
@@ -52,6 +85,40 @@
       "addLabels": [
         "lang: java"
       ]
+    },
+    {
+      "description": "Pin JUnit to 5.x: JUnit 6 requires a Java 17 test runtime, but the tomcat9 profile's tests run on Java 11 (the minimum Tomcat 9 / javax.servlet runtime). Same deliberate version-lock as the Jetty/Servlet major guards below.",
+      "matchPackageNames": [
+        "/^org\\.junit/"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Tomcat 9 line in install-tomcat.sh — keep TOMCAT_9_VERSION on 9.0.x",
+      "matchPackageNames": [
+        "org.apache.tomcat:tomcat"
+      ],
+      "matchCurrentValue": "/^9\\./",
+      "allowedVersions": "/^9\\./"
+    },
+    {
+      "description": "Tomcat 10 line in install-tomcat.sh — keep TOMCAT_10_VERSION on 10.1.x",
+      "matchPackageNames": [
+        "org.apache.tomcat:tomcat"
+      ],
+      "matchCurrentValue": "/^10\\./",
+      "allowedVersions": "/^10\\./"
+    },
+    {
+      "description": "Tomcat 11 line in install-tomcat.sh — keep TOMCAT_11_VERSION on 11.0.x",
+      "matchPackageNames": [
+        "org.apache.tomcat:tomcat"
+      ],
+      "matchCurrentValue": "/^11\\./",
+      "allowedVersions": "/^11\\./"
     },
     {
       "description": "Disable Jetty major updates (version tied to Tomcat profile)",
