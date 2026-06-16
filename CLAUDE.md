@@ -30,7 +30,7 @@ mvn -B package -Ptomcat10        # Tomcat 10 (jakarta.servlet 6.1)
 mvn -B package -Ptomcat11        # Tomcat 11 (jakarta.servlet 6.1)
 ```
 
-No test framework is configured — `make test` (and the CI `Test` step) runs `mvn test` against zero tests, so it is currently a no-op placeholder.
+Unit tests use **JUnit 5 + Mockito** (run via Surefire). Test sources are profile-specific, mirroring the main sources: `src/test/java` (javax, tomcat9) and `src/test/java-jakarta` (jakarta, tomcat10/11). `make test PROFILE=...` compiles and runs the matching set.
 
 ## Maven Profiles
 
