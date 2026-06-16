@@ -10,23 +10,18 @@ A minimal Java web application that replaces Tomcat's default ROOT webapp (`$TOM
 Supports **Tomcat 9**, **10**, and **11** via Maven profiles.
 
 ```mermaid
-C4Container
-    title ROOT WAR — request flow
-
-    Person(user, "User", "Web browser")
-
-    Container_Boundary(container, "Servlet container — Tomcat 9/10/11 or embedded Jetty") {
-        Container(html, "index.html", "Static HTML", "Welcome page served at /")
-        Container(servlet, "InfoServlet", "Java Servlet (javax or jakarta)", "Mapped at /infoservlet; forwards to the JSP")
-        Container(jsp, "index.jsp", "JSP", "Renders server info, request headers, and cookies")
-    }
-
-    Rel(user, html, "GET /", "HTTP")
-    Rel(user, servlet, "GET /infoservlet", "HTTP")
-    Rel(user, jsp, "GET /index.jsp", "HTTP")
-    Rel(servlet, jsp, "forwards via RequestDispatcher")
-
-    UpdateLayoutConfig($c4ShapeInRow="1", $c4BoundaryInRow="1")
+flowchart LR
+    user(["User<br/>(web browser)"])
+    subgraph sc["Servlet container — Tomcat 9/10/11 or embedded Jetty · ROOT.war at /"]
+        direction LR
+        html["index.html<br/>welcome page"]
+        servlet["InfoServlet<br/>/infoservlet"]
+        jsp["index.jsp<br/>server info · headers · cookies"]
+    end
+    user -->|GET /| html
+    user -->|GET /infoservlet| servlet
+    user -->|GET /index.jsp| jsp
+    servlet -->|forwards via RequestDispatcher| jsp
 ```
 
 The WAR deploys at context path `/` (replacing the container's default ROOT app). A single codebase targets both the `javax.servlet` (Tomcat 9) and `jakarta.servlet` (Tomcat 10/11) namespaces via Maven profiles that select the matching source tree (`src/main/java` vs `src/main/java-jakarta`).
@@ -48,7 +43,7 @@ The toolchain (JDK, Maven, node, act) is managed by [mise](https://mise.jdx.dev/
 |------|---------|---------|
 | [GNU Make](https://www.gnu.org/software/make/) | 3.81+ | Build orchestration |
 | [mise](https://mise.jdx.dev/) | latest | Toolchain version manager (provides JDK, Maven, node, act) |
-| [JDK](https://adoptium.net/) | 11/17/21 | Java runtime and compiler (provided by mise; local dev uses JDK 21) |
+| [JDK](https://adoptium.net/) | 21 (Temurin) | Java compiler/runtime — provided by mise; local dev builds every profile with JDK 21 (bytecode targets 11/17/21) |
 | [Maven](https://maven.apache.org/) | 3.9+ | Build and dependency management (provided by mise) |
 | [act](https://github.com/nektos/act) | pinned | Local GitHub Actions testing (provided by mise, optional) |
 
@@ -63,11 +58,11 @@ make deps                    # install JDK, Maven, node, act from .mise.toml
 
 Each profile targets a specific Tomcat version with the appropriate Servlet API:
 
-| Profile | Tomcat | Servlet API | Java | JDK |
-|---------|--------|-------------|------|-----|
-| `tomcat9` (default) | 9.0.x | `javax.servlet` 4.0 | 11 | 11-tem |
-| `tomcat10` | 10.1.x | `jakarta.servlet` 6.1 | 17 | 17-tem |
-| `tomcat11` | 11.0.x | `jakarta.servlet` 6.1 | 21 | 21-tem |
+| Profile | Tomcat | Servlet API | Java release | CI-tested JDKs |
+|---------|--------|-------------|--------------|----------------|
+| `tomcat9` (default) | 9.0.x | `javax.servlet` 4.0 | 11 | 11, 18, 25 |
+| `tomcat10` | 10.1.x | `jakarta.servlet` 6.1 | 17 | 18, 25 |
+| `tomcat11` | 11.0.x | `jakarta.servlet` 6.1 | 21 | 25 |
 
 Select a profile with `PROFILE=`:
 
@@ -246,12 +241,13 @@ GitHub Actions runs on every push to `master`, tags `v*`, and pull requests.
 | Job | Triggers | Purpose |
 |-----|----------|---------|
 | **changes** | push (master, tags), PR | Detect whether code paths changed (skips the build on docs-only changes) |
-| **build** | when `changes` reports code | Lint, Build, Test across the JDK × Tomcat matrix |
-| **ci-pass** | always | Aggregator gate — the single required status check |
+| **static-check** | when `changes` reports code | `make static-check` — `lint` + `trivy-fs` + `gitleaks-scan` + `mermaid-lint` |
+| **build** | when `changes` reports code | `make lint` + `make build` + `make test` across the JDK × Tomcat matrix |
+| **ci-pass** | always | Aggregator gate — succeeds only if every job passed; the single required status check on `master` (repository ruleset) |
 
 The **build** job uses a matrix strategy testing across JDK 11/18/25 with Tomcat 9, JDK 18/25 with Tomcat 10, and JDK 25 with Tomcat 11. The JDK for each leg is provided by [mise](https://mise.jdx.dev/) via the `MISE_JAVA_VERSION` override.
 
-[Renovate](https://docs.renovatebot.com/) keeps dependencies up to date with PR automerge enabled (gated on the `ci-pass` check).
+[Renovate](https://docs.renovatebot.com/) keeps dependencies up to date and automerges PRs once CI is green.
 
 ## Screenshots
 
