@@ -87,6 +87,8 @@ Run `make help` to see all available targets.
 | `make run` | Run locally with Jetty (alias for jetty-run) |
 | `make jetty-run` | Run locally with embedded Jetty server |
 | `make verify-all` | Verify build compiles for all Tomcat profiles |
+| `make smoke` | Deployed-WAR smoke test via embedded Jetty (use PROFILE=...) — boots `ROOT.war` and curls the real endpoints |
+| `make smoke-all` | Run the deployed-WAR smoke test for every Tomcat profile |
 
 ### Code Quality & Security
 
@@ -244,6 +246,7 @@ GitHub Actions runs on every push to `master`, tags `v*`, and pull requests.
 | **changes** | push (master, tags), PR | Detect whether code paths changed (skips the build on docs-only changes) |
 | **static-check** | when `changes` reports code | `make static-check` — `lint` + `trivy-fs` + `gitleaks-scan` + `mermaid-lint` |
 | **build** | when `changes` reports code (after **static-check**) | `make lint` + `make build` + `make test` across the JDK × Tomcat matrix |
+| **smoke** | when `changes` reports code (after **static-check**) | `make smoke` per profile — boots `ROOT.war` under embedded Jetty and curls the real endpoints (catches JSP runtime-compile + deploy-contract regressions the build/unit layer can't) |
 | **mermaid-lint** | docs-only edits (README.md, no code change) | `make mermaid-lint` — validates the README diagram on doc-only PRs (when code changes, **static-check** already covers it) |
 | **ci-pass** | always | Aggregator gate — succeeds only if every job passed; the single required status check on `master` (repository ruleset) |
 

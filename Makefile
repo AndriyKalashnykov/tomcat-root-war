@@ -124,6 +124,17 @@ verify-all: deps
 jetty-run: deps
 	@mvn -B clean package jetty:run -P$(PROFILE)
 
+#smoke: @ Deployed-WAR smoke test via embedded Jetty (use PROFILE=tomcat9|tomcat10|tomcat11)
+smoke: deps
+	@PROFILE=$(PROFILE) ./scripts/smoke.sh
+
+#smoke-all: @ Run the deployed-WAR smoke test for every Tomcat profile
+smoke-all: deps
+	@for p in $(ALLOWED_PROFILES); do \
+		echo "=== smoke $$p ==="; \
+		PROFILE=$$p ./scripts/smoke.sh || exit 1; \
+	done
+
 #deploy: @ Build and deploy ROOT.war to Tomcat (use PROFILE=tomcat9|tomcat10|tomcat11)
 deploy: deps
 	@./scripts/deploy.sh $(subst tomcat,,$(PROFILE))
@@ -191,5 +202,5 @@ env-check:
 	@mise ls --current
 
 .PHONY: help deps clean build test lint trivy-fs gitleaks-scan mermaid-lint static-check \
-	run ci ci-run verify-all jetty-run deploy tomcat-install tomcat-switch \
+	run ci ci-run verify-all jetty-run smoke smoke-all deploy tomcat-install tomcat-switch \
 	deps-print-updates deps-update release renovate-validate env-check
