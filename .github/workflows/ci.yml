@@ -164,9 +164,38 @@ jobs:
     - name: Lint Mermaid diagrams
       run: make mermaid-lint
 
+  smoke:
+
+    # Deployed-WAR smoke test: boots ROOT.war under embedded Jetty and curls the
+    # real endpoints. Catches the JSP runtime-compile + servlet-forward + deploy
+    # contract (javax vs jakarta) regressions that `mvn package` + unit tests
+    # never exercise (JSPs compile in the container at request time, not at build).
+    needs: [ changes, static-check ]
+    if: ${{ needs.changes.outputs.code == 'true' }}
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      matrix:
+        maven_profile: [ tomcat9, tomcat10, tomcat11 ]
+
+    steps:
+
+    - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+
+    - name: Set up mise
+      uses: jdx/mise-action@dba19683ed58901619b14f395a24841710cb4925 # v4.1.0
+      with:
+        install: true
+        cache: true
+
+    - name: Smoke test
+      run: make smoke PROFILE=${{ matrix.maven_profile }}
+
   ci-pass:
     if: always()
-    needs: [ changes, static-check, build, mermaid-lint ]
+    needs: [ changes, static-check, build, mermaid-lint, smoke ]
     runs-on: ubuntu-latest
     steps:
       - name: Verify all jobs passed

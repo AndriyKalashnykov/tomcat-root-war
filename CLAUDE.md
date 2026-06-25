@@ -17,6 +17,8 @@ make build PROFILE=tomcat10      # Tomcat 10
 make build PROFILE=tomcat11      # Tomcat 11
 make verify-all                  # compile all profiles
 make jetty-run                   # run locally with Jetty
+make smoke                       # deployed-WAR smoke test via embedded Jetty
+make smoke-all                   # smoke test every profile
 make clean                       # clean build artifacts
 make ci                          # run full local CI pipeline
 make ci-run                      # run GitHub Actions locally via act
@@ -30,7 +32,10 @@ mvn -B package -Ptomcat10        # Tomcat 10 (jakarta.servlet 6.1)
 mvn -B package -Ptomcat11        # Tomcat 11 (jakarta.servlet 6.1)
 ```
 
-Unit tests use **JUnit 5 + Mockito** (run via Surefire). Test sources are profile-specific, mirroring the main sources: `src/test/java` (javax, tomcat9) and `src/test/java-jakarta` (jakarta, tomcat10/11). `make test PROFILE=...` compiles and runs the matching set.
+Two test layers:
+
+- **Unit** — **JUnit 5 + Mockito** (run via Surefire). Test sources are profile-specific, mirroring the main sources: `src/test/java` (javax, tomcat9) and `src/test/java-jakarta` (jakarta, tomcat10/11). `make test PROFILE=...` compiles and runs the matching set.
+- **Deployed-WAR smoke** — `make smoke` / `make smoke-all` (`scripts/smoke.sh`) boots `ROOT.war` under embedded Jetty on an ephemeral port and curls the real endpoints (`/`, `/index.html`, `/index.jsp`, `/infoservlet`), asserting status + body. This exercises what mocks can't: the `index.jsp` scriptlets compiling/running in a real container (JSPs compile at request time, not at `mvn package`), the servlet's `RequestDispatcher` forward, and the per-profile javax/jakarta deploy contract.
 
 ## Maven Profiles
 
@@ -65,6 +70,7 @@ The two `InfoServlet.java` files are identical except for imports (`javax.servle
 
 - `scripts/install-tomcat.sh` — downloads Tomcat 9/10/11 to `~/tomcat/{9,10,11}`, creates `~/tomcat/current` symlink
 - `scripts/deploy.sh` — builds with the correct profile and deploys `ROOT.war` to the target Tomcat
+- `scripts/smoke.sh` — boots `ROOT.war` under embedded Jetty on an ephemeral port and asserts the live endpoints serve (deployed-WAR smoke; `make smoke`)
 
 ## Makefile
 
@@ -80,6 +86,7 @@ GitHub Actions (`ci.yml`) runs on push to `master`, tags `v*`, and pull requests
   - **Tomcat 9**: JDK 11, 17, 18, 21, 25 (Temurin)
   - **Tomcat 10**: JDK 17, 18, 25 (Temurin)
   - **Tomcat 11**: JDK 21, 25 (Temurin)
+- **smoke** — `needs: [changes, static-check]`. Runs `make smoke` per profile (matrix tomcat9/10/11): boots `ROOT.war` under embedded Jetty and curls the real endpoints — catches JSP runtime-compile + deploy-contract regressions the build/unit layer can't.
 - **mermaid-lint** — runs `make mermaid-lint` on docs-only edits (README.md, no code change) so a broken Mermaid diagram can't merge unvalidated; when code changes, `static-check` already covers it.
 - **ci-pass** — aggregator gate; succeeds only if every job passed. It is the single required status check on `master` (enforced via a repository ruleset).
 
