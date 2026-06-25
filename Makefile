@@ -19,6 +19,11 @@ ACT_UBUNTU_VERSION := act-latest-20260615
 # renovate: datasource=docker depName=minlag/mermaid-cli
 MERMAID_CLI_VERSION := 11.15.0
 
+# Renovate CLI for `make renovate-validate`. Pinned for reproducibility (no
+# floating @latest); bumped via the Makefile custom manager (see renovate.json).
+# renovate: datasource=npm depName=renovate
+RENOVATE_VERSION := 43.242.2
+
 PROFILE ?= tomcat9
 ALLOWED_PROFILES := tomcat9 tomcat10 tomcat11
 
@@ -178,8 +183,13 @@ ci-run: deps
 
 #renovate-validate: @ Validate Renovate configuration (node provided by mise)
 renovate-validate: deps
-	@npx --yes renovate@latest --platform=local
+	@npx --yes renovate@$(RENOVATE_VERSION) --platform=local
+
+#env-check: @ Report the resolved mise-managed toolchain versions
+env-check:
+	@command -v mise >/dev/null 2>&1 || { echo "Error: mise required. Install: https://mise.jdx.dev (curl https://mise.run | sh)"; exit 1; }
+	@mise ls --current
 
 .PHONY: help deps clean build test lint trivy-fs gitleaks-scan mermaid-lint static-check \
 	run ci ci-run verify-all jetty-run deploy tomcat-install tomcat-switch \
-	deps-print-updates deps-update release renovate-validate
+	deps-print-updates deps-update release renovate-validate env-check
