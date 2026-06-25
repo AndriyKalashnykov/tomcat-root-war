@@ -1,4 +1,4 @@
-[![CI](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/ci.yml/badge.svg)](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/ci.yml)
+[![CI](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/AndriyKalashnykov/tomcat-root-war/actions/workflows/ci.yml)
 [![Hits](https://hits.sh/github.com/AndriyKalashnykov/tomcat-root-war.svg?view=today-total&style=plastic)](https://hits.sh/github.com/AndriyKalashnykov/tomcat-root-war/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
 [![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://app.renovatebot.com/dashboard#github/AndriyKalashnykov/tomcat-root-war)
@@ -120,6 +120,7 @@ Run `make help` to see all available targets.
 | `make deps-print-updates` | Print project dependency updates |
 | `make deps-update` | Update dependencies to latest releases |
 | `make renovate-validate` | Validate Renovate configuration |
+| `make env-check` | Report the resolved mise-managed toolchain versions |
 | `make release` | Create and push a new tag |
 
 All profile-aware targets default to `tomcat9`. Set `PROFILE=tomcat10` or `PROFILE=tomcat11` to override.
@@ -242,7 +243,8 @@ GitHub Actions runs on every push to `master`, tags `v*`, and pull requests.
 |-----|----------|---------|
 | **changes** | push (master, tags), PR | Detect whether code paths changed (skips the build on docs-only changes) |
 | **static-check** | when `changes` reports code | `make static-check` — `lint` + `trivy-fs` + `gitleaks-scan` + `mermaid-lint` |
-| **build** | when `changes` reports code | `make lint` + `make build` + `make test` across the JDK × Tomcat matrix |
+| **build** | when `changes` reports code (after **static-check**) | `make lint` + `make build` + `make test` across the JDK × Tomcat matrix |
+| **mermaid-lint** | docs-only edits (README.md, no code change) | `make mermaid-lint` — validates the README diagram on doc-only PRs (when code changes, **static-check** already covers it) |
 | **ci-pass** | always | Aggregator gate — succeeds only if every job passed; the single required status check on `master` (repository ruleset) |
 
 The **build** job uses a matrix strategy testing across JDK 11/17/18/21/25 with Tomcat 9, JDK 17/18/25 with Tomcat 10, and JDK 21/25 with Tomcat 11. The JDK for each leg is provided by [mise](https://mise.jdx.dev/) via the `MISE_JAVA_VERSION` override.
@@ -253,19 +255,19 @@ The **build** job uses a matrix strategy testing across JDK 11/17/18/21/25 with 
 
 Default welcome page &mdash; [http://localhost:8080/](http://localhost:8080/)
 
-<img src="images/http-8080-root.png" alt="index.html" width="800">
+<img src="images/http-8080-root.png" alt="index.html" width="600">
 
 JSP &mdash; [http://localhost:8080/index.jsp](http://localhost:8080/index.jsp)
 
-<img src="images/http-8080-index-jsp.png" alt="index.jsp" width="800">
+<img src="images/http-8080-index-jsp.png" alt="index.jsp" width="600">
 
 Servlet &mdash; [http://localhost:8080/infoservlet](http://localhost:8080/infoservlet)
 
-<img src="images/http-8080-infoservlet.png" alt="infoservlet" width="800">
+<img src="images/http-8080-infoservlet.png" alt="infoservlet" width="600">
 
 HTML &mdash; [http://localhost:8080/index.html](http://localhost:8080/index.html)
 
-<img src="images/http-8080-index-html.png" alt="index.html" width="800">
+<img src="images/http-8080-index-html.png" alt="index.html" width="600">
 
 ## Used In
 

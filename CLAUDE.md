@@ -68,19 +68,22 @@ The two `InfoServlet.java` files are identical except for imports (`javax.servle
 
 ## Makefile
 
-The `Makefile` wraps Maven and the scripts. All profile-aware targets accept `PROFILE=tomcat9|tomcat10|tomcat11` (default: `tomcat9`). `make deps` installs the mise-pinned toolchain; mise shims are prepended to `PATH` so recipes find the pinned `java`/`mvn`/`act`.
+The `Makefile` wraps Maven and the scripts. All profile-aware targets accept `PROFILE=tomcat9|tomcat10|tomcat11` (default: `tomcat9`). mise shims are prepended to `PATH` so recipes find the pinned `java`/`mvn`/`act`.
 
 ## CI
 
 GitHub Actions (`ci.yml`) runs on push to `master`, tags `v*`, and pull requests. The toolchain is provided by `jdx/mise-action`; the JDK for each matrix leg is set via the `MISE_JAVA_VERSION` env override. Jobs:
 
-- **changes** — `dorny/paths-filter` detects whether code paths changed (docs-only changes skip the build).
+- **changes** — `dorny/paths-filter` detects whether `code` paths or `docs` (README.md) changed (docs-only changes skip the build).
 - **static-check** — runs `make static-check` (`lint` + `trivy-fs` + `gitleaks-scan` + `mermaid-lint`).
-- **build** — runs `make lint`, `make build`, `make test` across the matrix:
+- **build** — `needs: [changes, static-check]` (static-check gates the matrix so a lint failure fails fast). Runs `make lint`, `make build`, `make test` across the matrix:
   - **Tomcat 9**: JDK 11, 17, 18, 21, 25 (Temurin)
   - **Tomcat 10**: JDK 17, 18, 25 (Temurin)
   - **Tomcat 11**: JDK 21, 25 (Temurin)
+- **mermaid-lint** — runs `make mermaid-lint` on docs-only edits (README.md, no code change) so a broken Mermaid diagram can't merge unvalidated; when code changes, `static-check` already covers it.
 - **ci-pass** — aggregator gate; succeeds only if every job passed. It is the single required status check on `master` (enforced via a repository ruleset).
+
+**Static analysis scope**: dependency-CVE coverage is `trivy-fs` (scans `pom.xml` deps for HIGH/CRITICAL) plus Renovate. A 2-servlet demo WAR deliberately omits the heavier portfolio Java gates (OWASP dependency-check `cve-check`, google-java-format `format-check`, JaCoCo `coverage-check`) — they'd add CI secrets (NVD/OSS-Index), build time, and near-zero coverage signal on trivial code for no proportional benefit. Revisit if the codebase grows beyond the two `InfoServlet` sources.
 
 ## Skills
 

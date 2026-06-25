@@ -23,11 +23,13 @@ jobs:
 
   changes:
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     outputs:
       # Tag pushes always run the full pipeline: the tag SHA usually equals
       # master HEAD, so paths-filter (base: master) would see an empty diff and
       # skip every gated job, silently leaving a tagged release un-verified.
       code: ${{ startsWith(github.ref, 'refs/tags/') && 'true' || steps.filter.outputs.code }}
+      docs: ${{ steps.filter.outputs.docs }}
     steps:
       - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
       - uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
@@ -46,6 +48,11 @@ jobs:
               # CLAUDE.md is project config (build conventions / skill mappings),
               # not docs — its edits MUST run CI (/ci-workflow §15c).
               - 'CLAUDE.md'
+            # README.md carries a ```mermaid diagram. A README-only edit is NOT
+            # `code` (it must not trigger the 11-leg build), but it still needs
+            # mermaid-lint so a broken diagram can't merge unvalidated.
+            docs:
+              - 'README.md'
 
   static-check:
 
@@ -53,26 +60,30 @@ jobs:
     if: ${{ needs.changes.outputs.code == 'true' }}
 
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
 
     - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
 
-    - name: Set up tools (mise)
+    - name: Set up mise
       uses: jdx/mise-action@dba19683ed58901619b14f395a24841710cb4925 # v4.1.0
       with:
         install: true
         cache: true
 
-    - name: Static analysis (lint + trivy-fs + gitleaks)
+    - name: Static check
       run: make static-check
 
   build:
 
-    needs: [ changes ]
+    # Gate the expensive 11-leg matrix behind the cheap static-check job so a
+    # lint/trivy/gitleaks failure fails fast before burning matrix runner minutes.
+    needs: [ changes, static-check ]
     if: ${{ needs.changes.outputs.code == 'true' }}
 
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     strategy:
 
@@ -111,7 +122,7 @@ jobs:
 
     - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
 
-    - name: Set up tools (mise)
+    - name: Set up mise
       uses: jdx/mise-action@dba19683ed58901619b14f395a24841710cb4925 # v4.1.0
       with:
         install: true
@@ -135,9 +146,27 @@ jobs:
     - name: Test
       run: make test PROFILE=${{ matrix.maven_profile }}
 
+  mermaid-lint:
+
+    # When code changed, static-check already runs mermaid-lint. This job covers
+    # docs-only edits (README.md) so a broken Mermaid diagram cannot merge
+    # unvalidated (/ci-workflow §15h). Uses docker directly — no mise needed.
+    needs: [ changes ]
+    if: ${{ needs.changes.outputs.docs == 'true' && needs.changes.outputs.code != 'true' }}
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+
+    - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+
+    - name: Lint Mermaid diagrams
+      run: make mermaid-lint
+
   ci-pass:
     if: always()
-    needs: [ changes, static-check, build ]
+    needs: [ changes, static-check, build, mermaid-lint ]
     runs-on: ubuntu-latest
     steps:
       - name: Verify all jobs passed

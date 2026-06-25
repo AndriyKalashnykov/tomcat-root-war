@@ -13,6 +13,7 @@ concurrency:
 permissions:
   contents: read
   actions: write
+  pull-requests: read
 
 jobs:
   cleanup-runs:
@@ -26,17 +27,28 @@ jobs:
       - name: Delete old workflow runs
         run: |
           CUTOFF=$(date -u -d "${RETAIN_DAYS} days ago" +%Y-%m-%dT%H:%M:%SZ)
+          # Open PRs' head SHAs MUST be preserved: deleting an open PR's run
+          # removes its `ci-pass` required check, making the PR silently
+          # un-mergeable (mergeStateStatus=BLOCKED, 0 checks). Slow Renovate
+          # PRs older than RETAIN_DAYS are the classic victim.
+          OPEN_SHAS=$(gh pr list --repo "${{ github.repository }}" \
+            --state open --json headRefOid --jq '[.[].headRefOid]')
           # Retain the newest KEEP_MINIMUM runs PER WORKFLOW (group_by
-          # .workflowName), THEN delete any remaining run older than CUTOFF.
+          # .workflowName), THEN delete any remaining run older than CUTOFF
+          # whose headSha is not an open PR's head.
           # A single GLOBAL minimum can purge every run of a low-frequency
           # workflow and flip it to `state: deleted` (deregistered).
           gh run list --repo "${{ github.repository }}" \
-            --json databaseId,createdAt,workflowName --limit 300 \
-          | jq -r --arg cutoff "$CUTOFF" --argjson keep "$KEEP_MINIMUM" '
+            --json databaseId,createdAt,workflowName,headSha --limit 300 \
+          | jq -r --arg cutoff "$CUTOFF" --argjson keep "$KEEP_MINIMUM" \
+                --argjson open "$OPEN_SHAS" '
               group_by(.workflowName)
               | map(sort_by(.createdAt) | reverse | .[$keep:])
               | add // []
-              | .[] | select(.createdAt < $cutoff) | .databaseId
+              | .[]
+              | select(.createdAt < $cutoff)
+              | select(.headSha as $s | ($open | index($s)) | not)
+              | .databaseId
             ' \
           | xargs -r -I{} gh run delete {} --repo "${{ github.repository }}"
 

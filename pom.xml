@@ -134,7 +134,7 @@
             </build>
         </profile>
 
-        <!-- Tomcat 10: jakarta.servlet, Servlet 6.0, Java 11+ -->
+        <!-- Tomcat 10: jakarta.servlet, Servlet 6.1, Java 17+ -->
         <profile>
             <id>tomcat10</id>
             <properties>
@@ -168,7 +168,7 @@
             </build>
         </profile>
 
-        <!-- Tomcat 11: jakarta.servlet, Servlet 6.1, Java 17+ -->
+        <!-- Tomcat 11: jakarta.servlet, Servlet 6.1, Java 21+ -->
         <profile>
             <id>tomcat11</id>
             <properties>

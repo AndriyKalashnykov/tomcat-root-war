@@ -54,6 +54,16 @@
   },
   "packageRules": [
     {
+      "description": "Makefile docker-datasource pins (minlag/mermaid-cli, catthehacker/ubuntu) carry no @sha256 digest. config:best-practices enables docker:pinDigests, which would emit a pinDigest update that collides with and silently suppresses the version bump in the shared custom.regex Makefile manager. Disable digest pinning for these.",
+      "matchFileNames": [
+        "Makefile"
+      ],
+      "matchDatasources": [
+        "docker"
+      ],
+      "pinDigests": false
+    },
+    {
       "description": "Wait 3 days before automerging major updates",
       "matchUpdateTypes": [
         "major"
