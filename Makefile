@@ -160,6 +160,8 @@ deps-update: deps-print-updates
 release:
 	@bash -c 'read -p "New tag (current: $(CURRENTTAG)): " newtag && \
 		echo "$$newtag" | grep -qE "^v[0-9]+\.[0-9]+\.[0-9]+$$" || { echo "Error: Tag must match vN.N.N"; exit 1; } && \
+		{ ! git rev-parse -q --verify "refs/tags/$$newtag" >/dev/null 2>&1 || { echo "ERROR: tag $$newtag already exists locally. Pick a new version or delete it: git tag -d $$newtag"; exit 1; }; } && \
+		{ ! git ls-remote --exit-code --tags origin "refs/tags/$$newtag" >/dev/null 2>&1 || { echo "ERROR: tag $$newtag already exists on origin. Pick a new version."; exit 1; }; } && \
 		echo -n "Create and push $$newtag? [y/N] " && read ans && [ "$${ans:-N}" = y ] && \
 		echo $$newtag > ./version.txt && \
 		git add -A && \
